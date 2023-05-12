@@ -17,8 +17,7 @@ def parse_args():
 
     parser.add_argument('--tmp_dir', help='path of the temporary directory')
     parser.add_argument('-o', '--out_dir', help='output path')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def extract_img(root: str,
@@ -59,8 +58,13 @@ def extract_img(root: str,
                     img[np.where(img == 255)] = 0
                 mmcv.imwrite(
                     img,
-                    osp.join(out_dir, file_type, mode,
-                             osp.splitext(filename)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        file_type,
+                        mode,
+                        f'{osp.splitext(filename)[0]}.png',
+                    ),
+                )
 
 
 def main():

@@ -25,18 +25,17 @@ def test_multi_scale_flip_aug():
         ], [dict(type='mmseg.PackSegInputs')]])
     tta_module = TRANSFORMS.build(tta_transform)
 
-    results = dict()
     # (288, 512, 3)
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
-    results['img'] = img
-    results['ori_shape'] = img.shape
-    results['ori_height'] = img.shape[0]
-    results['ori_width'] = img.shape[1]
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'ori_shape': img.shape,
+        'ori_height': img.shape[0],
+        'ori_width': img.shape[1],
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     tta_results = tta_module(results.copy())
     assert [img.shape for img in tta_results['inputs']] == [(3, 256, 256),
                                                             (3, 512, 512),

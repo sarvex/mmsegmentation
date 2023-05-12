@@ -20,26 +20,32 @@ model = dict(
                 num_modules=1,
                 num_branches=1,
                 block='BOTTLENECK',
-                num_blocks=(4, ),
-                num_channels=(64, )),
+                num_blocks=(4,),
+                num_channels=(64,),
+            ),
             stage2=dict(
                 num_modules=1,
                 num_branches=2,
                 block='BASIC',
                 num_blocks=(4, 4),
-                num_channels=(18, 36)),
+                num_channels=(18, 36),
+            ),
             stage3=dict(
                 num_modules=4,
                 num_branches=3,
                 block='BASIC',
                 num_blocks=(4, 4, 4),
-                num_channels=(18, 36, 72)),
+                num_channels=(18, 36, 72),
+            ),
             stage4=dict(
                 num_modules=3,
                 num_branches=4,
                 block='BASIC',
                 num_blocks=(4, 4, 4, 4),
-                num_channels=(18, 36, 72, 144)))),
+                num_channels=(18, 36, 72, 144),
+            ),
+        ),
+    ),
     decode_head=dict(
         type='FCNHead',
         in_channels=[18, 36, 72, 144],
@@ -54,7 +60,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

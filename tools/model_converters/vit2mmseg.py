@@ -18,10 +18,7 @@ def convert_vit(ckpt):
         if k.startswith('norm'):
             new_k = k.replace('norm.', 'ln1.')
         elif k.startswith('patch_embed'):
-            if 'proj' in k:
-                new_k = k.replace('proj', 'projection')
-            else:
-                new_k = k
+            new_k = k.replace('proj', 'projection') if 'proj' in k else k
         elif k.startswith('blocks'):
             if 'norm' in k:
                 new_k = k.replace('norm', 'ln')

@@ -89,8 +89,7 @@ class PagFM(BaseModule):
             mode=self.upsample_mode,
             align_corners=False)
 
-        out = sigma * x_i + (1 - sigma) * x_p
-        return out
+        return sigma * x_i + (1 - sigma) * x_p
 
 
 class Bag(BaseModule):
@@ -400,13 +399,15 @@ class PIDNet(BaseModule):
 
         layers = [block(in_channels, channels, stride, downsample)]
         in_channels = channels * block.expansion
-        for i in range(1, num_blocks):
-            layers.append(
-                block(
-                    in_channels,
-                    channels,
-                    stride=1,
-                    act_cfg_out=None if i == num_blocks - 1 else self.act_cfg))
+        layers.extend(
+            block(
+                in_channels,
+                channels,
+                stride=1,
+                act_cfg_out=None if i == num_blocks - 1 else self.act_cfg,
+            )
+            for i in range(1, num_blocks)
+        )
         return nn.Sequential(*layers)
 
     def _make_single_layer(self,

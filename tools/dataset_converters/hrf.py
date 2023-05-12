@@ -29,8 +29,7 @@ def parse_args():
         help='the path of diabetic_retinopathy_manualsegm.zip')
     parser.add_argument('--tmp_dir', help='path of the temporary directory')
     parser.add_argument('-o', '--out_dir', help='output path')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -42,11 +41,7 @@ def main():
         args.healthy_manualsegm_path, args.glaucoma_manualsegm_path,
         args.diabetic_retinopathy_manualsegm_path
     ]
-    if args.out_dir is None:
-        out_dir = osp.join('data', 'HRF')
-    else:
-        out_dir = args.out_dir
-
+    out_dir = osp.join('data', 'HRF') if args.out_dir is None else args.out_dir
     print('Making directories...')
     mkdir_or_exist(out_dir)
     mkdir_or_exist(osp.join(out_dir, 'images'))
@@ -69,14 +64,24 @@ def main():
                 img = mmcv.imread(osp.join(tmp_dir, filename))
                 mmcv.imwrite(
                     img,
-                    osp.join(out_dir, 'images', 'training',
-                             osp.splitext(filename)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        'images',
+                        'training',
+                        f'{osp.splitext(filename)[0]}.png',
+                    ),
+                )
             for filename in sorted(os.listdir(tmp_dir))[TRAINING_LEN:]:
                 img = mmcv.imread(osp.join(tmp_dir, filename))
                 mmcv.imwrite(
                     img,
-                    osp.join(out_dir, 'images', 'validation',
-                             osp.splitext(filename)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        'images',
+                        'validation',
+                        f'{osp.splitext(filename)[0]}.png',
+                    ),
+                )
 
     print('Generating annotations...')
     for now_path in annotations_path:
@@ -96,14 +101,24 @@ def main():
                 # else 0'
                 mmcv.imwrite(
                     img[:, :, 0] // 128,
-                    osp.join(out_dir, 'annotations', 'training',
-                             osp.splitext(filename)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        'annotations',
+                        'training',
+                        f'{osp.splitext(filename)[0]}.png',
+                    ),
+                )
             for filename in sorted(os.listdir(tmp_dir))[TRAINING_LEN:]:
                 img = mmcv.imread(osp.join(tmp_dir, filename))
                 mmcv.imwrite(
                     img[:, :, 0] // 128,
-                    osp.join(out_dir, 'annotations', 'validation',
-                             osp.splitext(filename)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        'annotations',
+                        'validation',
+                        f'{osp.splitext(filename)[0]}.png',
+                    ),
+                )
 
     print('Done!')
 

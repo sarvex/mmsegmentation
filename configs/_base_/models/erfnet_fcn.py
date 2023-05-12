@@ -22,7 +22,8 @@ model = dict(
         dec_stages_non_bottleneck=(2, 2),
         dec_non_bottleneck_channels=(64, 16),
         dropout_ratio=0.1,
-        init_cfg=None),
+        init_cfg=None,
+    ),
     decode_head=dict(
         type='FCNHead',
         in_channels=16,
@@ -34,7 +35,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

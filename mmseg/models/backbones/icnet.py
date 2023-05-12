@@ -132,10 +132,7 @@ class ICNet(BaseModule):
             norm_cfg=norm_cfg)
 
     def forward(self, x):
-        output = []
-
-        # sub 1
-        output.append(self.conv_sub1(x))
+        output = [self.conv_sub1(x)]
 
         # sub 2
         x = resize(

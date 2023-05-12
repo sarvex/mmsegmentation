@@ -8,9 +8,8 @@ def _conv_has_norm(module, sync_bn):
         if isinstance(m, ConvModule):
             if not m.with_norm:
                 return False
-            if sync_bn:
-                if not isinstance(m.bn, SyncBatchNorm):
-                    return False
+            if sync_bn and not isinstance(m.bn, SyncBatchNorm):
+                return False
     return True
 
 

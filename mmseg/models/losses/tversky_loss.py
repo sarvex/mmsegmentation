@@ -111,7 +111,7 @@ class TverskyLoss(nn.Module):
             num_classes=num_classes)
         valid_mask = (target != self.ignore_index).long()
 
-        loss = self.loss_weight * tversky_loss(
+        return self.loss_weight * tversky_loss(
             pred,
             one_hot_target,
             valid_mask=valid_mask,
@@ -119,8 +119,8 @@ class TverskyLoss(nn.Module):
             beta=self.beta,
             smooth=self.smooth,
             class_weight=class_weight,
-            ignore_index=self.ignore_index)
-        return loss
+            ignore_index=self.ignore_index,
+        )
 
     @property
     def loss_name(self):

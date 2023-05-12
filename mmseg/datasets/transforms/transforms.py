@@ -104,8 +104,8 @@ class Rerange(BaseTransform):
     """
 
     def __init__(self, min_value=0, max_value=255):
-        assert isinstance(min_value, float) or isinstance(min_value, int)
-        assert isinstance(max_value, float) or isinstance(max_value, int)
+        assert isinstance(min_value, (float, int))
+        assert isinstance(max_value, (float, int))
         assert min_value < max_value
         self.min_value = min_value
         self.max_value = max_value
@@ -320,7 +320,7 @@ class RandomCrop(BaseTransform):
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(crop_size={self.crop_size})'
+        return f'{self.__class__.__name__}(crop_size={self.crop_size})'
 
 
 @TRANSFORMS.register_module()
@@ -502,7 +502,7 @@ class AdjustGamma(BaseTransform):
     """
 
     def __init__(self, gamma=1.0):
-        assert isinstance(gamma, float) or isinstance(gamma, int)
+        assert isinstance(gamma, (float, int))
         assert gamma > 0
         self.gamma = gamma
         inv_gamma = 1.0 / gamma
@@ -525,7 +525,7 @@ class AdjustGamma(BaseTransform):
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(gamma={self.gamma})'
+        return f'{self.__class__.__name__}(gamma={self.gamma})'
 
 
 @TRANSFORMS.register_module()
@@ -563,7 +563,7 @@ class SegRescale(BaseTransform):
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(scale_factor={self.scale_factor})'
+        return f'{self.__class__.__name__}(scale_factor={self.scale_factor})'
 
 
 @TRANSFORMS.register_module()
@@ -781,9 +781,9 @@ class RandomCutOut(BaseTransform):
                  fill_in=(0, 0, 0),
                  seg_fill_in=None):
 
-        assert 0 <= prob and prob <= 1
+        assert 0 <= prob <= 1
         assert (cutout_shape is None) ^ (cutout_ratio is None), \
-            'Either cutout_shape or cutout_ratio should be specified.'
+                'Either cutout_shape or cutout_ratio should be specified.'
         assert (isinstance(cutout_shape, (list, tuple))
                 or isinstance(cutout_ratio, (list, tuple)))
         if isinstance(n_holes, tuple):
@@ -791,8 +791,7 @@ class RandomCutOut(BaseTransform):
         else:
             n_holes = (n_holes, n_holes)
         if seg_fill_in is not None:
-            assert (isinstance(seg_fill_in, int) and 0 <= seg_fill_in
-                    and seg_fill_in <= 255)
+            assert isinstance(seg_fill_in, int) and seg_fill_in >= 0 and seg_fill_in <= 255
         self.prob = prob
         self.n_holes = n_holes
         self.fill_in = fill_in
@@ -1001,7 +1000,7 @@ class RandomMosaic(BaseTransform):
                  center_ratio_range=(0.5, 1.5),
                  pad_val=0,
                  seg_pad_val=255):
-        assert 0 <= prob and prob <= 1
+        assert 0 <= prob <= 1
         assert isinstance(img_scale, tuple)
         self.prob = prob
         self.img_scale = img_scale
@@ -1022,8 +1021,7 @@ class RandomMosaic(BaseTransform):
         Returns:
             dict: Result dict with mosaic transformed.
         """
-        mosaic = self.do_mosaic()
-        if mosaic:
+        if mosaic := self.do_mosaic():
             results = self._mosaic_transform_img(results)
             results = self._mosaic_transform_seg(results)
         return results
@@ -1038,8 +1036,7 @@ class RandomMosaic(BaseTransform):
             list: indices.
         """
 
-        indices = [random.randint(0, len(dataset)) for _ in range(3)]
-        return indices
+        return [random.randint(0, len(dataset)) for _ in range(3)]
 
     @cache_randomness
     def generate_mosaic_center(self):
@@ -1177,43 +1174,43 @@ class RandomMosaic(BaseTransform):
                 - crop_coord (tuple): crop corner coordinate in mosaic image.
         """
 
-        assert loc in ('top_left', 'top_right', 'bottom_left', 'bottom_right')
-        if loc == 'top_left':
+        assert loc in {'top_left', 'top_right', 'bottom_left', 'bottom_right'}
+        if loc == 'bottom_left':
+            # index2 to bottom left part of image
+            x1, y1, x2, y2 = max(center_position_xy[0] - img_shape_wh[0], 0), \
+                                 center_position_xy[1], \
+                                 center_position_xy[0], \
+                                 min(self.img_scale[0] * 2, center_position_xy[1] +
+                                 img_shape_wh[1])
+            crop_coord = img_shape_wh[0] - (x2 - x1), 0, img_shape_wh[0], min(
+                y2 - y1, img_shape_wh[1])
+
+        elif loc == 'top_left':
             # index0 to top left part of image
             x1, y1, x2, y2 = max(center_position_xy[0] - img_shape_wh[0], 0), \
-                             max(center_position_xy[1] - img_shape_wh[1], 0), \
-                             center_position_xy[0], \
-                             center_position_xy[1]
+                                 max(center_position_xy[1] - img_shape_wh[1], 0), \
+                                 center_position_xy[0], \
+                                 center_position_xy[1]
             crop_coord = img_shape_wh[0] - (x2 - x1), img_shape_wh[1] - (
                 y2 - y1), img_shape_wh[0], img_shape_wh[1]
 
         elif loc == 'top_right':
             # index1 to top right part of image
             x1, y1, x2, y2 = center_position_xy[0], \
-                             max(center_position_xy[1] - img_shape_wh[1], 0), \
-                             min(center_position_xy[0] + img_shape_wh[0],
+                                 max(center_position_xy[1] - img_shape_wh[1], 0), \
+                                 min(center_position_xy[0] + img_shape_wh[0],
                                  self.img_scale[1] * 2), \
-                             center_position_xy[1]
+                                 center_position_xy[1]
             crop_coord = 0, img_shape_wh[1] - (y2 - y1), min(
                 img_shape_wh[0], x2 - x1), img_shape_wh[1]
-
-        elif loc == 'bottom_left':
-            # index2 to bottom left part of image
-            x1, y1, x2, y2 = max(center_position_xy[0] - img_shape_wh[0], 0), \
-                             center_position_xy[1], \
-                             center_position_xy[0], \
-                             min(self.img_scale[0] * 2, center_position_xy[1] +
-                                 img_shape_wh[1])
-            crop_coord = img_shape_wh[0] - (x2 - x1), 0, img_shape_wh[0], min(
-                y2 - y1, img_shape_wh[1])
 
         else:
             # index3 to bottom right part of image
             x1, y1, x2, y2 = center_position_xy[0], \
-                             center_position_xy[1], \
-                             min(center_position_xy[0] + img_shape_wh[0],
+                                 center_position_xy[1], \
+                                 min(center_position_xy[0] + img_shape_wh[0],
                                  self.img_scale[1] * 2), \
-                             min(self.img_scale[0] * 2, center_position_xy[1] +
+                                 min(self.img_scale[0] * 2, center_position_xy[1] +
                                  img_shape_wh[1])
             crop_coord = 0, 0, min(img_shape_wh[0],
                                    x2 - x1), min(y2 - y1, img_shape_wh[1])
@@ -1374,11 +1371,7 @@ class ResizeShortestEdge(BaseTransform):
         elif isinstance(short_edge_length, tuple):
             size = min(short_edge_length) * 1.0
         scale = size / min(h, w)
-        if h < w:
-            new_h, new_w = size, scale * w
-        else:
-            new_h, new_w = scale * h, size
-
+        new_h, new_w = (size, scale * w) if h < w else (scale * h, size)
         if max(new_h, new_w) > self.max_size:
             scale = self.max_size * 1.0 / max(new_h, new_w)
             new_h *= scale
@@ -1469,7 +1462,7 @@ class BioMedical3DRandomCrop(BaseTransform):
                 foreground_classes.append(c)
 
         selected_voxel = None
-        if len(foreground_classes) > 0:
+        if foreground_classes:
             selected_class = np.random.choice(foreground_classes)
             voxels_of_that_class = class_locs[selected_class]
             selected_voxel = voxels_of_that_class[np.random.choice(
@@ -1586,7 +1579,7 @@ class BioMedical3DRandomCrop(BaseTransform):
         return results
 
     def __repr__(self):
-        return self.__class__.__name__ + f'(crop_shape={self.crop_shape})'
+        return f'{self.__class__.__name__}(crop_shape={self.crop_shape})'
 
 
 @TRANSFORMS.register_module()
@@ -1726,17 +1719,14 @@ class BioMedicalGaussianBlur(BaseTransform):
         sigma = None
         for c in range(data_sample.shape[0]):
             if np.random.rand() < self.prob_per_channel:
-                # if no `sigma` is generated, generate one
-                # if `self.different_sigma_per_channel` is True,
-                # re-generate random sigma for each channel
                 if (sigma is None or self.different_sigma_per_channel):
-                    if (not self.different_sigma_per_axis):
-                        sigma = self._get_valid_sigma(self.sigma_range)
-                    else:
+                    if self.different_sigma_per_axis:
                         sigma = [
                             self._get_valid_sigma(self.sigma_range)
                             for _ in data_sample.shape[1:]
                         ]
+                    else:
+                        sigma = self._get_valid_sigma(self.sigma_range)
                 # apply gaussian filter with `sigma`
                 data_sample[c] = gaussian_filter(
                     data_sample[c], sigma, order=0)
@@ -1802,7 +1792,7 @@ class BioMedicalRandomGamma(BaseTransform):
                  invert_image: bool = False,
                  per_channel: bool = False,
                  retain_stats: bool = False):
-        assert 0 <= prob and prob <= 1
+        assert 0 <= prob <= 1
         assert isinstance(gamma_range, tuple) and len(gamma_range) == 2
         assert isinstance(invert_image, bool)
         assert isinstance(per_channel, bool)
@@ -1868,12 +1858,8 @@ class BioMedicalRandomGamma(BaseTransform):
         Returns:
             dict: Result dict with random gamma correction performed.
         """
-        do_gamma = self._do_gamma()
-
-        if do_gamma:
+        if do_gamma := self._do_gamma():
             results['img'] = self._adjust_gamma(results['img'])
-        else:
-            pass
         return results
 
     def __repr__(self):

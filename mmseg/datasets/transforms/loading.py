@@ -252,12 +252,7 @@ class LoadBiomedicalImageFromFile(BaseTransform):
         return results
 
     def __repr__(self):
-        repr_str = (f'{self.__class__.__name__}('
-                    f"decode_backend='{self.decode_backend}', "
-                    f'to_xyz={self.to_xyz}, '
-                    f'to_float32={self.to_float32}, '
-                    f'backend_args={self.backend_args})')
-        return repr_str
+        return f"{self.__class__.__name__}(decode_backend='{self.decode_backend}', to_xyz={self.to_xyz}, to_float32={self.to_float32}, backend_args={self.backend_args})"
 
 
 @TRANSFORMS.register_module()
@@ -335,12 +330,7 @@ class LoadBiomedicalAnnotation(BaseTransform):
         return results
 
     def __repr__(self):
-        repr_str = (f'{self.__class__.__name__}('
-                    f"decode_backend='{self.decode_backend}', "
-                    f'to_xyz={self.to_xyz}, '
-                    f'to_float32={self.to_float32}, '
-                    f'backend_args={self.backend_args})')
-        return repr_str
+        return f"{self.__class__.__name__}(decode_backend='{self.decode_backend}', to_xyz={self.to_xyz}, to_float32={self.to_float32}, backend_args={self.backend_args})"
 
 
 @TRANSFORMS.register_module()
@@ -431,12 +421,7 @@ class LoadBiomedicalData(BaseTransform):
         return results
 
     def __repr__(self) -> str:
-        repr_str = (f'{self.__class__.__name__}('
-                    f'with_seg={self.with_seg}, '
-                    f"decode_backend='{self.decode_backend}', "
-                    f'to_xyz={self.to_xyz}, '
-                    f'backend_args={self.backend_args})')
-        return repr_str
+        return f"{self.__class__.__name__}(with_seg={self.with_seg}, decode_backend='{self.decode_backend}', to_xyz={self.to_xyz}, backend_args={self.backend_args})"
 
 
 @TRANSFORMS.register_module()
@@ -490,6 +475,4 @@ class InferencerLoader(BaseTransform):
         else:
             raise NotImplementedError
 
-        if 'img' in inputs:
-            return self.from_ndarray(inputs)
-        return self.from_file(inputs)
+        return self.from_ndarray(inputs) if 'img' in inputs else self.from_file(inputs)

@@ -22,8 +22,7 @@ def parse_args():
         default='.dev/benchmark_train.sh',
         help='path to save model benchmark script')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def create_train_bash_info(commands, config, script_name, partition, port):
@@ -69,14 +68,10 @@ def main():
     port = args.port
     partition_name = 'PARTITION=$1'
 
-    commands = []
-    commands.append(partition_name)
-    commands.append('\n')
-    commands.append('\n')
-
+    commands = [partition_name, '\n', '\n']
     with open(args.txt_path) as f:
         model_cfgs = f.readlines()
-        for i, cfg in enumerate(model_cfgs):
+        for cfg in model_cfgs:
             create_train_bash_info(commands, cfg, script_name, '$PARTITION',
                                    port)
             port += 1

@@ -58,30 +58,30 @@ class BasicConvBlock(nn.Module):
         assert plugins is None, 'Not implemented yet.'
 
         self.with_cp = with_cp
-        convs = []
-        for i in range(num_convs):
-            convs.append(
-                ConvModule(
-                    in_channels=in_channels if i == 0 else out_channels,
-                    out_channels=out_channels,
-                    kernel_size=3,
-                    stride=stride if i == 0 else 1,
-                    dilation=1 if i == 0 else dilation,
-                    padding=1 if i == 0 else dilation,
-                    conv_cfg=conv_cfg,
-                    norm_cfg=norm_cfg,
-                    act_cfg=act_cfg))
-
+        convs = [
+            ConvModule(
+                in_channels=in_channels if i == 0 else out_channels,
+                out_channels=out_channels,
+                kernel_size=3,
+                stride=stride if i == 0 else 1,
+                dilation=1 if i == 0 else dilation,
+                padding=1 if i == 0 else dilation,
+                conv_cfg=conv_cfg,
+                norm_cfg=norm_cfg,
+                act_cfg=act_cfg,
+            )
+            for i in range(num_convs)
+        ]
         self.convs = nn.Sequential(*convs)
 
     def forward(self, x):
         """Forward function."""
 
-        if self.with_cp and x.requires_grad:
-            out = cp.checkpoint(self.convs, x)
-        else:
-            out = self.convs(x)
-        return out
+        return (
+            cp.checkpoint(self.convs, x)
+            if self.with_cp and x.requires_grad
+            else self.convs(x)
+        )
 
 
 @MODELS.register_module()
@@ -138,11 +138,11 @@ class DeconvModule(nn.Module):
     def forward(self, x):
         """Forward function."""
 
-        if self.with_cp and x.requires_grad:
-            out = cp.checkpoint(self.deconv_upsamping, x)
-        else:
-            out = self.deconv_upsamping(x)
-        return out
+        return (
+            cp.checkpoint(self.deconv_upsamping, x)
+            if self.with_cp and x.requires_grad
+            else self.deconv_upsamping(x)
+        )
 
 
 @MODELS.register_module()
@@ -212,11 +212,11 @@ class InterpConv(nn.Module):
     def forward(self, x):
         """Forward function."""
 
-        if self.with_cp and x.requires_grad:
-            out = cp.checkpoint(self.interp_upsample, x)
-        else:
-            out = self.interp_upsample(x)
-        return out
+        return (
+            cp.checkpoint(self.interp_upsample, x)
+            if self.with_cp and x.requires_grad
+            else self.interp_upsample(x)
+        )
 
 
 @MODELS.register_module()

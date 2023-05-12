@@ -43,11 +43,7 @@ class ASPPModule(nn.ModuleList):
 
     def forward(self, x):
         """Forward function."""
-        aspp_outs = []
-        for aspp_module in self:
-            aspp_outs.append(aspp_module(x))
-
-        return aspp_outs
+        return [aspp_module(x) for aspp_module in self]
 
 
 @MODELS.register_module()
@@ -112,8 +108,7 @@ class ASPPHead(BaseDecodeHead):
         ]
         aspp_outs.extend(self.aspp_modules(x))
         aspp_outs = torch.cat(aspp_outs, dim=1)
-        feats = self.bottleneck(aspp_outs)
-        return feats
+        return self.bottleneck(aspp_outs)
 
     def forward(self, inputs):
         """Forward function."""

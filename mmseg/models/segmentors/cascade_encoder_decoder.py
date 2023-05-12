@@ -78,21 +78,18 @@ class CascadeEncoderDecoder(EncoderDecoder):
         out = self.decode_head[0].forward(x)
         for i in range(1, self.num_stages - 1):
             out = self.decode_head[i].forward(x, out)
-        seg_logits_list = self.decode_head[-1].predict(x, out, batch_img_metas,
-                                                       self.test_cfg)
-
-        return seg_logits_list
+        return self.decode_head[-1].predict(x, out, batch_img_metas, self.test_cfg)
 
     def _decode_head_forward_train(self, inputs: Tensor,
                                    data_samples: SampleList) -> dict:
         """Run forward function and calculate loss for decode head in
         training."""
-        losses = dict()
+        losses = {}
 
         loss_decode = self.decode_head[0].loss(inputs, data_samples,
                                                self.train_cfg)
 
-        losses.update(add_prefix(loss_decode, 'decode_0'))
+        losses |= add_prefix(loss_decode, 'decode_0')
         # get batch_img_metas
         batch_size = len(data_samples)
         batch_img_metas = []

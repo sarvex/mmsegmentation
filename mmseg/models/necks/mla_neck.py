@@ -23,7 +23,7 @@ class MLAModule(nn.Module):
                     norm_cfg=norm_cfg,
                     act_cfg=act_cfg))
         self.feat_extract = nn.ModuleList()
-        for i in range(len(in_channels)):
+        for _ in range(len(in_channels)):
             self.feat_extract.append(
                 ConvModule(
                     in_channels=out_channels,
@@ -35,27 +35,18 @@ class MLAModule(nn.Module):
 
     def forward(self, inputs):
 
-        # feat_list -> [p2, p3, p4, p5]
-        feat_list = []
-        for x, conv in zip(inputs, self.channel_proj):
-            feat_list.append(conv(x))
-
+        feat_list = [conv(x) for x, conv in zip(inputs, self.channel_proj)]
         # feat_list -> [p5, p4, p3, p2]
         # mid_list -> [m5, m4, m3, m2]
         feat_list = feat_list[::-1]
         mid_list = []
         for feat in feat_list:
-            if len(mid_list) == 0:
+            if not mid_list:
                 mid_list.append(feat)
             else:
                 mid_list.append(mid_list[-1] + feat)
 
-        # mid_list -> [m5, m4, m3, m2]
-        # out_list -> [o2, o3, o4, o5]
-        out_list = []
-        for mid, conv in zip(mid_list, self.feat_extract):
-            out_list.append(conv(mid))
-
+        out_list = [conv(mid) for mid, conv in zip(mid_list, self.feat_extract)]
         return tuple(out_list)
 
 

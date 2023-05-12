@@ -14,7 +14,7 @@ from mmseg.utils import datafrombytes
 def test_datafrombytes(backend, suffix):
 
     file_client = FileClient('disk')
-    file_path = osp.join(osp.dirname(__file__), '../data/biomedical' + suffix)
+    file_path = osp.join(osp.dirname(__file__), f'../data/biomedical{suffix}')
     bytes = file_client.get(file_path)
     data = datafrombytes(bytes, backend)
 

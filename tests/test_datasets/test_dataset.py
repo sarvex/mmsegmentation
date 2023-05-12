@@ -424,8 +424,7 @@ def test_custom_dataset_custom_palette():
                                                                200]]),
         lazy_init=True,
         test_mode=True)
-    assert tuple(dataset.metainfo['palette']) == tuple([[100, 100, 100],
-                                                        [200, 200, 200]])
+    assert tuple(dataset.metainfo['palette']) == ([100, 100, 100], [200, 200, 200])
     # test custom class and palette don't match
     with pytest.raises(ValueError):
         dataset = BaseSegDataset(

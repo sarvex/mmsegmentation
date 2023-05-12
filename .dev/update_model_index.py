@@ -59,14 +59,14 @@ def get_model_info(md_file: str, config_dir: str,
 
         while i < len(lines):
             line: str = lines[i].strip()
-            if len(line) == 0:
+            if not line:
                 i += 1
                 continue
             # get paper name and url
             if re.match(r'> \[.*\]+\([a-zA-Z]+://[^\s]*\)', line):
                 paper_info = line.split('](')
                 paper_name = paper_info[0][paper_info[0].index('[') + 1:]
-                paper_url = paper_info[1][:len(paper_info[1]) - 1]
+                paper_url = paper_info[1][:-1]
 
             # get code info
             if 'Code Snippet' in line:
@@ -139,8 +139,11 @@ def get_model_info(md_file: str, config_dir: str,
                     crop_size = values[crop_size_idx].split('x')
                     crop_size = [int(crop_size[0]), int(crop_size[1])]
 
-                    mem = values[mem_idx].split('\\')[0] if values[
-                        mem_idx] != '-' and values[mem_idx] != '' else -1
+                    mem = (
+                        values[mem_idx].split('\\')[0]
+                        if values[mem_idx] not in ['-', '']
+                        else -1
+                    )
 
                     method = values[keys.index('Method')].strip()
                     # method = [method.strip()] if '+' not in method else [
@@ -150,7 +153,7 @@ def get_model_info(md_file: str, config_dir: str,
                     if ' + ' in method:
                         method = [m.strip() for m in method.split(' + ')]
                     elif ' ' in method:
-                        method = [m for m in method.split(' ')]
+                        method = list(method.split(' '))
                     else:
                         method = [method]
                     backone: str = re.findall(
@@ -201,30 +204,24 @@ def get_model_info(md_file: str, config_dir: str,
                 i = j
             i += 1
 
-    if not (is_dataset
-            or is_backbone) or collection_name not in collection_name_list:
-        collection = {
-            'Name': collection_name,
-            'License': 'Apache License 2.0',
-            'Metadata': {
-                'Training Data': datasets
-            },
-            'Paper': {
-                'Title': paper_name,
-                'URL': paper_url,
-            },
-            'README': osp.join('configs',
-                               config_dir.split('/')[-1], 'README.md'),
-            'Frameworks': ['PyTorch'],
-        }
-        results = {
-            'Collections': [collection],
-            'Models': models
-        }, collection_name
-    else:
-        results = {'Models': models}, ''
+    if (is_dataset or is_backbone) and collection_name in collection_name_list:
+        return {'Models': models}, ''
 
-    return results
+    collection = {
+        'Name': collection_name,
+        'License': 'Apache License 2.0',
+        'Metadata': {
+            'Training Data': datasets
+        },
+        'Paper': {
+            'Title': paper_name,
+            'URL': paper_url,
+        },
+        'README': osp.join('configs',
+                           config_dir.split('/')[-1], 'README.md'),
+        'Frameworks': ['PyTorch'],
+    }
+    return {'Collections': [collection], 'Models': models}, collection_name
 
 
 def dump_yaml_and_check_difference(model_info: dict, filename: str) -> bool:

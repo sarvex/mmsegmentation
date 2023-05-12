@@ -39,8 +39,7 @@ class TreeTripletLoss(nn.Module):
         labels = torch.nn.functional.interpolate(
             labels, (feats.shape[2], feats.shape[3]), mode='nearest')
         labels = labels.squeeze(1).long()
-        assert labels.shape[-1] == feats.shape[-1], '{} {}'.format(
-            labels.shape, feats.shape)
+        assert labels.shape[-1] == feats.shape[-1], f'{labels.shape} {feats.shape}'
 
         labels = labels.view(-1)
         feats = feats.permute(0, 2, 3, 1)

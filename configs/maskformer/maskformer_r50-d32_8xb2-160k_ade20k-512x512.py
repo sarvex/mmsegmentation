@@ -28,11 +28,16 @@ model = dict(
         norm_eval=True,
         style='pytorch',
         contract_dilation=True,
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50'),
+    ),
     decode_head=dict(
         type='MaskFormerHead',
-        in_channels=[256, 512, 1024,
-                     2048],  # input channels of pixel_decoder modules
+        in_channels=[
+            256,
+            512,
+            1024,
+            2048,
+        ],  # input channels of pixel_decoder modules
         feat_channels=256,
         in_index=[0, 1, 2, 3],
         num_classes=150,
@@ -41,10 +46,12 @@ model = dict(
         pixel_decoder=dict(
             type='mmdet.PixelDecoder',
             norm_cfg=dict(type='GN', num_groups=32),
-            act_cfg=dict(type='ReLU')),
+            act_cfg=dict(type='ReLU'),
+        ),
         enforce_decoder_input_project=False,
         positional_encoding=dict(  # SinePositionalEncoding
-            num_feats=128, normalize=True),
+            num_feats=128, normalize=True
+        ),
         transformer_decoder=dict(  # DetrTransformerDecoder
             return_intermediate=True,
             num_layers=6,
@@ -55,14 +62,16 @@ model = dict(
                     attn_drop=0.1,
                     proj_drop=0.1,
                     dropout_layer=None,
-                    batch_first=True),
+                    batch_first=True,
+                ),
                 cross_attn_cfg=dict(  # MultiheadAttention
                     embed_dims=256,
                     num_heads=8,
                     attn_drop=0.1,
                     proj_drop=0.1,
                     dropout_layer=None,
-                    batch_first=True),
+                    batch_first=True,
+                ),
                 ffn_cfg=dict(
                     embed_dims=256,
                     feedforward_channels=2048,
@@ -70,21 +79,26 @@ model = dict(
                     act_cfg=dict(type='ReLU', inplace=True),
                     ffn_drop=0.1,
                     dropout_layer=None,
-                    add_identity=True)),
-            init_cfg=None),
+                    add_identity=True,
+                ),
+            ),
+            init_cfg=None,
+        ),
         loss_cls=dict(
             type='mmdet.CrossEntropyLoss',
             use_sigmoid=False,
             loss_weight=1.0,
             reduction='mean',
-            class_weight=[1.0] * num_classes + [0.1]),
+            class_weight=[1.0] * num_classes + [0.1],
+        ),
         loss_mask=dict(
             type='mmdet.FocalLoss',
             use_sigmoid=True,
             gamma=2.0,
             alpha=0.25,
             reduction='mean',
-            loss_weight=20.0),
+            loss_weight=20.0,
+        ),
         loss_dice=dict(
             type='mmdet.DiceLoss',
             use_sigmoid=True,
@@ -92,7 +106,8 @@ model = dict(
             reduction='mean',
             naive_dice=True,
             eps=1.0,
-            loss_weight=1.0),
+            loss_weight=1.0,
+        ),
         train_cfg=dict(
             assigner=dict(
                 type='mmdet.HungarianAssigner',
@@ -101,16 +116,20 @@ model = dict(
                     dict(
                         type='mmdet.FocalLossCost',
                         weight=20.0,
-                        binary_input=True),
+                        binary_input=True,
+                    ),
                     dict(
                         type='mmdet.DiceCost',
                         weight=1.0,
                         pred_act=True,
-                        eps=1.0)
-                ]),
-            sampler=dict(type='mmdet.MaskPseudoSampler'))),
-    # training and testing settings
-    train_cfg=dict(),
+                        eps=1.0,
+                    ),
+                ],
+            ),
+            sampler=dict(type='mmdet.MaskPseudoSampler'),
+        ),
+    ),
+    train_cfg={},
     test_cfg=dict(mode='whole'),
 )
 # optimizer

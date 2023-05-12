@@ -89,7 +89,7 @@ class DAPPM(BaseModule):
                     **conv_cfg)
             ]))
         self.processes = ModuleList()
-        for i in range(num_scales - 1):
+        for _ in range(num_scales - 1):
             self.processes.append(
                 ConvModule(
                     branch_channels,
@@ -117,9 +117,7 @@ class DAPPM(BaseModule):
             **conv_cfg)
 
     def forward(self, inputs: Tensor):
-        feats = []
-        feats.append(self.scales[0](inputs))
-
+        feats = [self.scales[0](inputs)]
         for i in range(1, self.num_scales):
             feat_up = F.interpolate(
                 self.scales[i](inputs),

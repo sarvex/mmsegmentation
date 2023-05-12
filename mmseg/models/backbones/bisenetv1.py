@@ -75,7 +75,7 @@ class SpatialPath(BaseModule):
                         act_cfg=act_cfg))
 
     def forward(self, x):
-        for i, layer_name in enumerate(self.layers):
+        for layer_name in self.layers:
             layer_stage = getattr(self, layer_name)
             x = layer_stage(x)
         return x
@@ -122,8 +122,7 @@ class AttentionRefinementModule(BaseModule):
     def forward(self, x):
         x = self.conv_layer(x)
         x_atten = self.atten_conv_layer(x)
-        x_out = x * x_atten
-        return x_out
+        return x * x_atten
 
 
 class ContextPath(BaseModule):
@@ -258,8 +257,7 @@ class FeatureFusionModule(BaseModule):
         # Note: No BN and more 1x1 conv in paper.
         x_atten = self.conv_atten(x_atten)
         x_atten = x_fuse * x_atten
-        x_out = x_atten + x_fuse
-        return x_out
+        return x_atten + x_fuse
 
 
 @MODELS.register_module()

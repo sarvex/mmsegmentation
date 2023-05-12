@@ -27,15 +27,11 @@ from utils import load_config
 def parse_args():
     parser = argparse.ArgumentParser(description='extract info from log.json')
     parser.add_argument('config_dir')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def has_keyword(name: str, keywords: list):
-    for a_keyword in keywords:
-        if a_keyword in name:
-            return True
-    return False
+    return any(a_keyword in name for a_keyword in keywords)
 
 
 def main():
@@ -111,8 +107,7 @@ def main():
                     new_ordered_dict[key] = log[key]
             val_list[index - 1] = new_ordered_dict
 
-        assert len(val_list) >= 1, \
-            f"work dir {config_dir} doesn't contain any evaluation."
+        assert val_list, f"work dir {config_dir} doesn't contain any evaluation."
         new_log_dict['last eval'] = val_list[-1]
         new_log_dict['best eval'] = max(val_list, key=lambda x: x[metric])
         experiment_info_list.append(new_log_dict)
@@ -123,13 +118,10 @@ def main():
             json.dump(experiment_info_list, f, indent=4)
 
     if markdown_file:
-        lines_to_write = []
-        for index, log in enumerate(experiment_info_list, 1):
-            lines_to_write.append(
-                f"|{index}|{log['method']}|{log['best eval'][metric]}"
-                f"|{log['best eval']['eval_index']}|"
-                f"{log['last eval'][metric]}|"
-                f"{log['last eval']['eval_index']}|{log['last_iter']}|\n")
+        lines_to_write = [
+            f"|{index}|{log['method']}|{log['best eval'][metric]}|{log['best eval']['eval_index']}|{log['last eval'][metric]}|{log['last eval']['eval_index']}|{log['last_iter']}|\n"
+            for index, log in enumerate(experiment_info_list, 1)
+        ]
         with open(markdown_file, 'w') as f:
             f.write(f'|exp_num|method|{metric} best|best index|'
                     f'{metric} last|last index|last iter num|\n')

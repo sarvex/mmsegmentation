@@ -107,8 +107,7 @@ class PSPHead(BaseDecodeHead):
         psp_outs = [x]
         psp_outs.extend(self.psp_modules(x))
         psp_outs = torch.cat(psp_outs, dim=1)
-        feats = self.bottleneck(psp_outs)
-        return feats
+        return self.bottleneck(psp_outs)
 
     def forward(self, inputs):
         """Forward function."""

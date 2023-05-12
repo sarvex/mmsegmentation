@@ -37,8 +37,9 @@ def main():
         title=args.title,
         opacity=args.opacity,
         draw_gt=False,
-        show=False if args.out_file is not None else True,
-        out_file=args.out_file)
+        show=args.out_file is None,
+        out_file=args.out_file,
+    )
 
 
 if __name__ == '__main__':

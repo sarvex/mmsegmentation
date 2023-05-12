@@ -23,8 +23,8 @@ def convert_stdc(ckpt, stdc_type):
             k = k.replace('cp.', '')
         if 'features.' in k:
             num_layer = int(k.split('.')[1])
-            feature_key_lst = 'features.' + str(num_layer) + '.'
-            stages_key_lst = 'stages.' + stage_lst[num_layer] + '.'
+            feature_key_lst = f'features.{num_layer}.'
+            stages_key_lst = f'stages.{stage_lst[num_layer]}.'
             k = k.replace(feature_key_lst, stages_key_lst)
             flag = True
         if 'conv_list' in k:

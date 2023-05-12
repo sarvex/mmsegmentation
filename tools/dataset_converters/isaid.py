@@ -161,8 +161,7 @@ def parse_args():
         help='Height of the cropped image patch')
     parser.add_argument(
         '--overlap_area', default=384, type=int, help='Overlap area')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -173,11 +172,7 @@ def main():
 
     overlap = args.overlap_area  # overlap area
 
-    if args.out_dir is None:
-        out_dir = osp.join('data', 'iSAID')
-    else:
-        out_dir = args.out_dir
-
+    out_dir = osp.join('data', 'iSAID') if args.out_dir is None else args.out_dir
     print('Making directories...')
     mkdir_or_exist(osp.join(out_dir, 'img_dir', 'train'))
     mkdir_or_exist(osp.join(out_dir, 'img_dir', 'val'))
@@ -232,7 +227,7 @@ def main():
                     os.path.join(tmp_dir, dataset_mode, 'lab', 'images',
                                  '*.png'))
                 lab_prog_bar = ProgressBar(len(lab_path_list))
-                for i, lab_path in enumerate(lab_path_list):
+                for lab_path in lab_path_list:
                     slide_crop_label(lab_path, out_dir, dataset_mode, patch_H,
                                      patch_W, overlap)
                     lab_prog_bar.update()

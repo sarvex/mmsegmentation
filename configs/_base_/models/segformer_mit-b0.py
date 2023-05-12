@@ -25,7 +25,8 @@ model = dict(
         qkv_bias=True,
         drop_rate=0.0,
         attn_drop_rate=0.0,
-        drop_path_rate=0.1),
+        drop_path_rate=0.1,
+    ),
     decode_head=dict(
         type='SegformerHead',
         in_channels=[32, 64, 160, 256],
@@ -36,7 +37,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

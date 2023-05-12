@@ -39,8 +39,7 @@ def parse_args():
         'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
         'Note that the quotation marks are necessary and that no white space '
         'is allowed.')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def calculate_confusion_matrix(dataset, results):
@@ -158,9 +157,7 @@ def main():
     results = load(args.prediction_path)
 
     assert isinstance(results, list)
-    if isinstance(results[0], np.ndarray):
-        pass
-    else:
+    if not isinstance(results[0], np.ndarray):
         raise TypeError('invalid type of prediction results')
 
     if isinstance(cfg.data.test, dict):

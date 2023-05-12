@@ -45,11 +45,11 @@ class TestSegLocalVisualizer(TestCase):
                                                     data_sample)
 
                 assert os.path.exists(
-                    osp.join(tmp_dir, 'vis_data', 'vis_image',
-                             out_file + '_0.png'))
+                    osp.join(tmp_dir, 'vis_data', 'vis_image', f'{out_file}_0.png')
+                )
                 drawn_img = cv2.imread(
-                    osp.join(tmp_dir, 'vis_data', 'vis_image',
-                             out_file + '_0.png'))
+                    osp.join(tmp_dir, 'vis_data', 'vis_image', f'{out_file}_0.png')
+                )
                 assert drawn_img.shape == (h, w, 3)
 
                 # test gt_instances and pred_instances
@@ -62,14 +62,20 @@ class TestSegLocalVisualizer(TestCase):
                 seg_local_visualizer.add_datasample(out_file, image,
                                                     data_sample)
                 self._assert_image_and_shape(
-                    osp.join(tmp_dir, 'vis_data', 'vis_image',
-                             out_file + '_0.png'), (h, w * 2, 3))
+                    osp.join(
+                        tmp_dir, 'vis_data', 'vis_image', f'{out_file}_0.png'
+                    ),
+                    (h, w * 2, 3),
+                )
 
                 seg_local_visualizer.add_datasample(
                     out_file, image, data_sample, draw_gt=False)
                 self._assert_image_and_shape(
-                    osp.join(tmp_dir, 'vis_data', 'vis_image',
-                             out_file + '_0.png'), (h, w, 3))
+                    osp.join(
+                        tmp_dir, 'vis_data', 'vis_image', f'{out_file}_0.png'
+                    ),
+                    (h, w, 3),
+                )
 
         if torch.cuda.is_available():
             test_add_datasample_forward(gt_sem_seg.cuda())
@@ -138,14 +144,20 @@ class TestSegLocalVisualizer(TestCase):
                 seg_local_visualizer.add_datasample(out_file, image,
                                                     data_sample)
                 self._assert_image_and_shape(
-                    osp.join(tmp_dir, 'vis_data', 'vis_image',
-                             out_file + '_0.png'), (h, w * 2, 3))
+                    osp.join(
+                        tmp_dir, 'vis_data', 'vis_image', f'{out_file}_0.png'
+                    ),
+                    (h, w * 2, 3),
+                )
                 # test draw prediction without gt
                 seg_local_visualizer.add_datasample(
                     out_file, image, data_sample, draw_gt=False)
                 self._assert_image_and_shape(
-                    osp.join(tmp_dir, 'vis_data', 'vis_image',
-                             out_file + '_0.png'), (h, w, 3))
+                    osp.join(
+                        tmp_dir, 'vis_data', 'vis_image', f'{out_file}_0.png'
+                    ),
+                    (h, w, 3),
+                )
 
         if torch.cuda.is_available():
             test_cityscapes_add_datasample_forward(gt_sem_seg.cuda())

@@ -10,10 +10,7 @@ from mmseg.structures import SegDataSample
 
 
 def _equal(a, b):
-    if isinstance(a, (torch.Tensor, np.ndarray)):
-        return (a == b).all()
-    else:
-        return a == b
+    return (a == b).all() if isinstance(a, (torch.Tensor, np.ndarray)) else a == b
 
 
 class TestSegDataSample(TestCase):

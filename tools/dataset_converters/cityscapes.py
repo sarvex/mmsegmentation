@@ -20,8 +20,7 @@ def parse_args():
     parser.add_argument('-o', '--out-dir', help='output path')
     parser.add_argument(
         '--nproc', default=1, type=int, help='number of process')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -44,10 +43,12 @@ def main():
     split_names = ['train', 'val', 'test']
 
     for split in split_names:
-        filenames = []
-        for poly in scandir(
-                osp.join(gt_dir, split), '_polygons.json', recursive=True):
-            filenames.append(poly.replace('_gtFine_polygons.json', ''))
+        filenames = [
+            poly.replace('_gtFine_polygons.json', '')
+            for poly in scandir(
+                osp.join(gt_dir, split), '_polygons.json', recursive=True
+            )
+        ]
         with open(osp.join(out_dir, f'{split}.txt'), 'w') as f:
             f.writelines(f + '\n' for f in filenames)
 

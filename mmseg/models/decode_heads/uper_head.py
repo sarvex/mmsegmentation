@@ -79,9 +79,7 @@ class UPerHead(BaseDecodeHead):
         psp_outs = [x]
         psp_outs.extend(self.psp_modules(x))
         psp_outs = torch.cat(psp_outs, dim=1)
-        output = self.bottleneck(psp_outs)
-
-        return output
+        return self.bottleneck(psp_outs)
 
     def _forward_feature(self, inputs):
         """Forward function for feature maps before classifying each pixel with
@@ -129,8 +127,7 @@ class UPerHead(BaseDecodeHead):
                 mode='bilinear',
                 align_corners=self.align_corners)
         fpn_outs = torch.cat(fpn_outs, dim=1)
-        feats = self.fpn_bottleneck(fpn_outs)
-        return feats
+        return self.fpn_bottleneck(fpn_outs)
 
     def forward(self, inputs):
         """Forward function."""

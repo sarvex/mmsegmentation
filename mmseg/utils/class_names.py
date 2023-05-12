@@ -446,13 +446,12 @@ def get_classes(dataset):
         for alias in aliases:
             alias2name[alias] = name
 
-    if is_str(dataset):
-        if dataset in alias2name:
-            labels = eval(alias2name[dataset] + '_classes()')
-        else:
-            raise ValueError(f'Unrecognized dataset: {dataset}')
-    else:
+    if not is_str(dataset):
         raise TypeError(f'dataset must a str, but got {type(dataset)}')
+    if dataset in alias2name:
+        labels = eval(f'{alias2name[dataset]}_classes()')
+    else:
+        raise ValueError(f'Unrecognized dataset: {dataset}')
     return labels
 
 
@@ -463,11 +462,10 @@ def get_palette(dataset):
         for alias in aliases:
             alias2name[alias] = name
 
-    if is_str(dataset):
-        if dataset in alias2name:
-            labels = eval(alias2name[dataset] + '_palette()')
-        else:
-            raise ValueError(f'Unrecognized dataset: {dataset}')
-    else:
+    if not is_str(dataset):
         raise TypeError(f'dataset must a str, but got {type(dataset)}')
+    if dataset in alias2name:
+        labels = eval(f'{alias2name[dataset]}_palette()')
+    else:
+        raise ValueError(f'Unrecognized dataset: {dataset}')
     return labels

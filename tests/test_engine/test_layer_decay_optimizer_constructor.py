@@ -128,7 +128,7 @@ class ToyConvNeXt(nn.Module):
     def __init__(self):
         super().__init__()
         self.stages = nn.ModuleList()
-        for i in range(4):
+        for _ in range(4):
             stage = nn.Sequential(ConvModule(3, 4, kernel_size=1, bias=True))
             self.stages.append(stage)
         self.norm0 = nn.BatchNorm2d(2)

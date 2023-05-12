@@ -270,10 +270,6 @@ class KernelUpdateHead(nn.Module):
         for p in self.parameters():
             if p.dim() > 1:
                 nn.init.xavier_uniform_(p)
-            else:
-                # adopt the default initialization for
-                # the weight and bias of the layer norm
-                pass
         if self.kernel_init:
             print_log(
                 'mask kernel in mask head is normal initialized by std 0.01')
@@ -363,15 +359,14 @@ class KernelUpdateHead(nn.Module):
         mask_feat = mask_feat.reshape(N, num_proposals, C,
                                       self.conv_kernel_size,
                                       self.conv_kernel_size)
-        # [B, C, H, W] -> [1, B*C, H, W]
-        new_mask_preds = []
-        for i in range(N):
-            new_mask_preds.append(
-                F.conv2d(
-                    mask_x[i:i + 1],
-                    mask_feat[i],
-                    padding=int(self.conv_kernel_size // 2)))
-
+        new_mask_preds = [
+            F.conv2d(
+                mask_x[i : i + 1],
+                mask_feat[i],
+                padding=int(self.conv_kernel_size // 2),
+            )
+            for i in range(N)
+        ]
         new_mask_preds = torch.cat(new_mask_preds, dim=0)
         new_mask_preds = new_mask_preds.reshape(N, num_proposals, H, W)
         if self.mask_transform_stride == 2:
@@ -444,14 +439,11 @@ class IterativeDecodeHead(BaseDecodeHead):
                                                               seg_kernels,
                                                               sem_seg)
             stage_segs.append(sem_seg)
-        if self.training:
-            return stage_segs
-        # only return the prediction of the last stage during testing
-        return stage_segs[-1]
+        return stage_segs if self.training else stage_segs[-1]
 
     def loss_by_feat(self, seg_logits: List[Tensor],
                      batch_data_samples: SampleList, **kwargs) -> dict:
-        losses = dict()
+        losses = {}
         for i, logit in enumerate(seg_logits):
             loss = self.kernel_generate_head.loss_by_feat(
                 logit, batch_data_samples)

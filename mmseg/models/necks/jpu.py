@@ -120,12 +120,8 @@ class JPU(BaseModule):
         ],
                                 dim=1)
 
-        outs = []
-
-        # Default: outs[2] is the output of JPU for decoder head, outs[1] is
-        # the feature map from backbone for auxiliary head. Additionally,
-        # outs[0] can also be used for auxiliary head.
-        for i in range(self.start_level, self.backbone_end_level - 1):
-            outs.append(inputs[i])
+        outs = [
+            inputs[i] for i in range(self.start_level, self.backbone_end_level - 1)
+        ]
         outs.append(concat_feat)
         return tuple(outs)

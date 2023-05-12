@@ -22,8 +22,7 @@ def parse_args():
         help='output path of gathered metrics and compared '
         'results to be stored')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
@@ -51,7 +50,7 @@ if __name__ == '__main__':
                 continue
 
             json_list = glob.glob(osp.join(metric_json_dir, '*.json'))
-            if len(json_list) == 0:
+            if not json_list:
                 print(f'There is no eval json in {metric_json_dir}.')
                 continue
 
@@ -62,8 +61,8 @@ if __name__ == '__main__':
                 continue
 
             # Compare between new benchmark results and previous metrics
-            differential_results = dict()
-            new_metrics = dict()
+            differential_results = {}
+            new_metrics = {}
             for record_metric_key in previous_metrics:
                 if record_metric_key not in metric['metric']:
                     raise KeyError('record_metric_key not exist, please '

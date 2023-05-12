@@ -128,14 +128,13 @@ class PIDHead(BaseDecodeHead):
         Returns:
             Tensor | tuple[Tensor]: Output tensor or tuple of tensors.
         """
-        if self.training:
-            x_p, x_i, x_d = inputs
-            x_p = self.p_head(x_p, self.p_cls_seg)
-            x_i = self.i_head(x_i, self.cls_seg)
-            x_d = self.d_head(x_d, self.d_cls_seg)
-            return x_p, x_i, x_d
-        else:
+        if not self.training:
             return self.i_head(inputs, self.cls_seg)
+        x_p, x_i, x_d = inputs
+        x_p = self.p_head(x_p, self.p_cls_seg)
+        x_i = self.i_head(x_i, self.cls_seg)
+        x_d = self.d_head(x_d, self.d_cls_seg)
+        return x_p, x_i, x_d
 
     def _stack_batch_gt(self, batch_data_samples: SampleList) -> Tuple[Tensor]:
         gt_semantic_segs = [
@@ -150,7 +149,6 @@ class PIDHead(BaseDecodeHead):
 
     def loss_by_feat(self, seg_logits: Tuple[Tensor],
                      batch_data_samples: SampleList) -> dict:
-        loss = dict()
         p_logit, i_logit, d_logit = seg_logits
         sem_label, bd_label = self._stack_batch_gt(batch_data_samples)
         p_logit = resize(
@@ -170,8 +168,11 @@ class PIDHead(BaseDecodeHead):
             align_corners=self.align_corners)
         sem_label = sem_label.squeeze(1)
         bd_label = bd_label.squeeze(1)
-        loss['loss_sem_p'] = self.loss_decode[0](
-            p_logit, sem_label, ignore_index=self.ignore_index)
+        loss = {
+            'loss_sem_p': self.loss_decode[0](
+                p_logit, sem_label, ignore_index=self.ignore_index
+            )
+        }
         loss['loss_sem_i'] = self.loss_decode[1](i_logit, sem_label)
         loss['loss_bd'] = self.loss_decode[2](d_logit, bd_label)
         filler = torch.ones_like(sem_label) * self.ignore_index

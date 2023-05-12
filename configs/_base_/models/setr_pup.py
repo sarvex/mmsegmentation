@@ -39,7 +39,9 @@ model = dict(
         kernel_size=3,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
     auxiliary_head=[
         dict(
             type='SETRUPHead',
@@ -54,7 +56,9 @@ model = dict(
             kernel_size=3,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4
+            ),
+        ),
         dict(
             type='SETRUPHead',
             in_channels=1024,
@@ -68,7 +72,9 @@ model = dict(
             kernel_size=3,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4
+            ),
+        ),
         dict(
             type='SETRUPHead',
             in_channels=1024,
@@ -82,7 +88,10 @@ model = dict(
             kernel_size=3,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4
+            ),
+        ),
     ],
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

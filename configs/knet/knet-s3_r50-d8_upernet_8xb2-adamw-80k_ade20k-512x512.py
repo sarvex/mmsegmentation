@@ -30,7 +30,8 @@ model = dict(
         norm_cfg=norm_cfg,
         norm_eval=False,
         style='pytorch',
-        contract_dilation=True),
+        contract_dilation=True,
+    ),
     decode_head=dict(
         type='IterativeDecodeHead',
         num_stages=num_stages,
@@ -49,14 +50,18 @@ model = dict(
                 ffn_act_cfg=dict(type='ReLU', inplace=True),
                 with_ffn=True,
                 feat_transform_cfg=dict(
-                    conv_cfg=dict(type='Conv2d'), act_cfg=None),
+                    conv_cfg=dict(type='Conv2d'), act_cfg=None
+                ),
                 kernel_updator_cfg=dict(
                     type='KernelUpdator',
                     in_channels=256,
                     feat_channels=256,
                     out_channels=256,
                     act_cfg=dict(type='ReLU', inplace=True),
-                    norm_cfg=dict(type='LN'))) for _ in range(num_stages)
+                    norm_cfg=dict(type='LN'),
+                ),
+            )
+            for _ in range(num_stages)
         ],
         kernel_generate_head=dict(
             type='UPerHead',
@@ -69,7 +74,10 @@ model = dict(
             norm_cfg=norm_cfg,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0))),
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+            ),
+        ),
+    ),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=1024,
@@ -82,10 +90,12 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)
 # optimizer
 optim_wrapper = dict(
     _delete_=True,

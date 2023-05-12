@@ -138,6 +138,4 @@ class ISAHead(BaseDecodeHead):
             x = x[:, :, pad_h // 2:pad_h // 2 + h, pad_w // 2:pad_w // 2 + w]
 
         x = self.out_conv(torch.cat([x, residual], dim=1))
-        out = self.cls_seg(x)
-
-        return out
+        return self.cls_seg(x)

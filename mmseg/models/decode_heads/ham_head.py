@@ -118,11 +118,7 @@ class NMF2D(Matrix_Decomposition_2D_Base):
 
     def _build_bases(self, B, S, D, R, cuda=False):
         """Build bases in initialization."""
-        if cuda:
-            bases = torch.rand((B * S, D, R)).cuda()
-        else:
-            bases = torch.rand((B * S, D, R))
-
+        bases = torch.rand((B * S, D, R)).cuda() if cuda else torch.rand((B * S, D, R))
         bases = F.normalize(bases, dim=1)
 
         return bases

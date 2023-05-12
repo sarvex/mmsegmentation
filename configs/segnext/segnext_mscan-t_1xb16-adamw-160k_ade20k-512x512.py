@@ -30,7 +30,8 @@ model = dict(
         attention_kernel_sizes=[5, [1, 7], [1, 11], [1, 21]],
         attention_kernel_paddings=[2, [0, 3], [0, 5], [0, 10]],
         act_cfg=dict(type='GELU'),
-        norm_cfg=dict(type='BN', requires_grad=True)),
+        norm_cfg=dict(type='BN', requires_grad=True),
+    ),
     decode_head=dict(
         type='LightHamHead',
         in_channels=[64, 160, 256],
@@ -42,17 +43,20 @@ model = dict(
         norm_cfg=ham_norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
         ham_kwargs=dict(
             MD_S=1,
             MD_R=16,
             train_steps=6,
             eval_steps=7,
             inv_t=100,
-            rand_init=True)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            rand_init=True,
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)
 
 # dataset settings
 train_dataloader = dict(batch_size=16)

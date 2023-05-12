@@ -209,7 +209,6 @@ class MAE(BEiT):
     def resize_abs_pos_embed(self, state_dict):
         if 'pos_embed' in state_dict:
             pos_embed_checkpoint = state_dict['pos_embed']
-            embedding_size = pos_embed_checkpoint.shape[-1]
             num_extra_tokens = self.pos_embed.shape[-2] - self.num_patches
             # height (== width) for the checkpoint position embedding
             orig_size = int(
@@ -221,6 +220,7 @@ class MAE(BEiT):
                 extra_tokens = pos_embed_checkpoint[:, :num_extra_tokens]
                 # only the position tokens are interpolated
                 pos_tokens = pos_embed_checkpoint[:, num_extra_tokens:]
+                embedding_size = pos_embed_checkpoint.shape[-1]
                 pos_tokens = pos_tokens.reshape(-1, orig_size, orig_size,
                                                 embedding_size).permute(
                                                     0, 3, 1, 2)
@@ -247,9 +247,8 @@ class MAE(BEiT):
         outs = []
         for i, layer in enumerate(self.layers):
             x = layer(x)
-            if i == len(self.layers) - 1:
-                if self.final_norm:
-                    x = self.norm1(x)
+            if i == len(self.layers) - 1 and self.final_norm:
+                x = self.norm1(x)
             if i in self.out_indices:
                 out = x[:, 1:]
                 B, _, C = out.shape

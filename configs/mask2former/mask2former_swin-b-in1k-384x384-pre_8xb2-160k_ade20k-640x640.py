@@ -29,14 +29,15 @@ model = dict(
         mlp_ratio=4,
         qkv_bias=True,
         qk_scale=None,
-        drop_rate=0.,
-        attn_drop_rate=0.,
+        drop_rate=0.0,
+        attn_drop_rate=0.0,
         drop_path_rate=0.3,
         patch_norm=True,
         out_indices=(0, 1, 2, 3),
         with_cp=False,
         frozen_stages=-1,
-        init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
+        init_cfg=dict(type='Pretrained', checkpoint=pretrained),
+    ),
     decode_head=dict(
         type='Mask2FormerHead',
         in_channels=[128, 256, 512, 1024],
@@ -64,20 +65,27 @@ model = dict(
                         dropout=0.0,
                         batch_first=True,
                         norm_cfg=None,
-                        init_cfg=None),
+                        init_cfg=None,
+                    ),
                     ffn_cfg=dict(
                         embed_dims=256,
                         feedforward_channels=1024,
                         num_fcs=2,
                         ffn_drop=0.0,
-                        act_cfg=dict(type='ReLU', inplace=True))),
-                init_cfg=None),
+                        act_cfg=dict(type='ReLU', inplace=True),
+                    ),
+                ),
+                init_cfg=None,
+            ),
             positional_encoding=dict(  # SinePositionalEncoding
-                num_feats=128, normalize=True),
-            init_cfg=None),
+                num_feats=128, normalize=True
+            ),
+            init_cfg=None,
+        ),
         enforce_decoder_input_project=False,
         positional_encoding=dict(  # SinePositionalEncoding
-            num_feats=128, normalize=True),
+            num_feats=128, normalize=True
+        ),
         transformer_decoder=dict(  # Mask2FormerTransformerDecoder
             return_intermediate=True,
             num_layers=9,
@@ -88,14 +96,16 @@ model = dict(
                     attn_drop=0.0,
                     proj_drop=0.0,
                     dropout_layer=None,
-                    batch_first=True),
+                    batch_first=True,
+                ),
                 cross_attn_cfg=dict(  # MultiheadAttention
                     embed_dims=256,
                     num_heads=8,
                     attn_drop=0.0,
                     proj_drop=0.0,
                     dropout_layer=None,
-                    batch_first=True),
+                    batch_first=True,
+                ),
                 ffn_cfg=dict(
                     embed_dims=256,
                     feedforward_channels=2048,
@@ -103,19 +113,24 @@ model = dict(
                     act_cfg=dict(type='ReLU', inplace=True),
                     ffn_drop=0.0,
                     dropout_layer=None,
-                    add_identity=True)),
-            init_cfg=None),
+                    add_identity=True,
+                ),
+            ),
+            init_cfg=None,
+        ),
         loss_cls=dict(
             type='mmdet.CrossEntropyLoss',
             use_sigmoid=False,
             loss_weight=2.0,
             reduction='mean',
-            class_weight=[1.0] * num_classes + [0.1]),
+            class_weight=[1.0] * num_classes + [0.1],
+        ),
         loss_mask=dict(
             type='mmdet.CrossEntropyLoss',
             use_sigmoid=True,
             reduction='mean',
-            loss_weight=5.0),
+            loss_weight=5.0,
+        ),
         loss_dice=dict(
             type='mmdet.DiceLoss',
             use_sigmoid=True,
@@ -123,7 +138,8 @@ model = dict(
             reduction='mean',
             naive_dice=True,
             eps=1.0,
-            loss_weight=5.0),
+            loss_weight=5.0,
+        ),
         train_cfg=dict(
             num_points=12544,
             oversample_ratio=3.0,
@@ -135,16 +151,22 @@ model = dict(
                     dict(
                         type='mmdet.CrossEntropyLossCost',
                         weight=5.0,
-                        use_sigmoid=True),
+                        use_sigmoid=True,
+                    ),
                     dict(
                         type='mmdet.DiceCost',
                         weight=5.0,
                         pred_act=True,
-                        eps=1.0)
-                ]),
-            sampler=dict(type='mmdet.MaskPseudoSampler'))),
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+                        eps=1.0,
+                    ),
+                ],
+            ),
+            sampler=dict(type='mmdet.MaskPseudoSampler'),
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)
 
 # dataset config
 train_pipeline = [
@@ -168,25 +190,27 @@ train_dataloader = dict(batch_size=2, dataset=dict(pipeline=train_pipeline))
 backbone_norm_multi = dict(lr_mult=0.1, decay_mult=0.0)
 backbone_embed_multi = dict(lr_mult=0.1, decay_mult=0.0)
 embed_multi = dict(lr_mult=1.0, decay_mult=0.0)
-custom_keys = {
-    'backbone': dict(lr_mult=0.1, decay_mult=1.0),
-    'backbone.patch_embed.norm': backbone_norm_multi,
-    'backbone.norm': backbone_norm_multi,
-    'absolute_pos_embed': backbone_embed_multi,
-    'relative_position_bias_table': backbone_embed_multi,
-    'query_embed': embed_multi,
-    'query_feat': embed_multi,
-    'level_embed': embed_multi
-}
-custom_keys.update({
-    f'backbone.stages.{stage_id}.blocks.{block_id}.norm': backbone_norm_multi
-    for stage_id, num_blocks in enumerate(depths)
-    for block_id in range(num_blocks)
-})
-custom_keys.update({
-    f'backbone.stages.{stage_id}.downsample.norm': backbone_norm_multi
-    for stage_id in range(len(depths) - 1)
-})
+custom_keys = (
+    {
+        'backbone': dict(lr_mult=0.1, decay_mult=1.0),
+        'backbone.patch_embed.norm': backbone_norm_multi,
+        'backbone.norm': backbone_norm_multi,
+        'absolute_pos_embed': backbone_embed_multi,
+        'relative_position_bias_table': backbone_embed_multi,
+        'query_embed': embed_multi,
+        'query_feat': embed_multi,
+        'level_embed': embed_multi,
+    }
+    | {
+        f'backbone.stages.{stage_id}.blocks.{block_id}.norm': backbone_norm_multi
+        for stage_id, num_blocks in enumerate(depths)
+        for block_id in range(num_blocks)
+    }
+    | {
+        f'backbone.stages.{stage_id}.downsample.norm': backbone_norm_multi
+        for stage_id in range(len(depths) - 1)
+    }
+)
 # optimizer
 optimizer = dict(
     type='AdamW', lr=0.0001, weight_decay=0.05, eps=1e-8, betas=(0.9, 0.999))

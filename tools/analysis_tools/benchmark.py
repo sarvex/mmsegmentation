@@ -26,8 +26,7 @@ def parse_args():
         help=('if specified, the results will be dumped '
               'into the directory as json'))
     parser.add_argument('--repeat-times', type=int, default=1)
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -55,6 +54,10 @@ def main():
     benchmark_dict = dict(config=args.config, unit='img / s')
     overall_fps_list = []
     cfg.test_dataloader.batch_size = 1
+    # the first several iterations may be very slow so skip them
+    num_warmup = 5
+    total_iters = 200
+
     for time_index in range(repeat_times):
         print(f'Run {time_index + 1}:')
         # build the dataloader
@@ -74,11 +77,7 @@ def main():
 
         model.eval()
 
-        # the first several iterations may be very slow so skip them
-        num_warmup = 5
         pure_inf_time = 0
-        total_iters = 200
-
         # benchmark with 200 batches and take the average
         for i, data in enumerate(data_loader):
             data = model.data_preprocessor(data, True)

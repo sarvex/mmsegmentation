@@ -307,7 +307,7 @@ class ISNetHead(BaseDecodeHead):
     def loss_by_feat(self, seg_logits: Tensor,
                      batch_data_samples: SampleList) -> dict:
         seg_label = self._stack_batch_gt(batch_data_samples)
-        loss = dict()
+        loss = {}
 
         if self.sampler is not None:
             seg_weight = self.sampler.sample(seg_logits[-1], seg_label)

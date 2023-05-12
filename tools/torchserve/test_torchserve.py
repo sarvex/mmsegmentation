@@ -29,12 +29,11 @@ def parse_args():
     parser.add_argument(
         '--device', default='cuda:0', help='Device used for inference')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main(args):
-    url = 'http://' + args.inference_addr + '/predictions/' + args.model_name
+    url = f'http://{args.inference_addr}/predictions/{args.model_name}'
     with open(args.img, 'rb') as image:
         tmp_res = requests.post(url, image)
     content = tmp_res.content
@@ -42,10 +41,9 @@ def main(args):
         with open(args.result_image, 'wb') as out_image:
             out_image.write(content)
         plt.imshow(mmcv.imread(args.result_image, 'grayscale'))
-        plt.show()
     else:
         plt.imshow(plt.imread(BytesIO(content)))
-        plt.show()
+    plt.show()
     model = init_model(args.config, args.checkpoint, args.device)
     image = mmcv.imread(args.img)
     result = inference_model(model, image)

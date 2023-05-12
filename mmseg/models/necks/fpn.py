@@ -107,13 +107,7 @@ class FPN(BaseModule):
             # Extra_convs_source choices: 'on_input', 'on_lateral', 'on_output'
             assert add_extra_convs in ('on_input', 'on_lateral', 'on_output')
         elif add_extra_convs:  # True
-            if extra_convs_on_inputs:
-                # For compatibility with previous release
-                # TODO: deprecate `extra_convs_on_inputs`
-                self.add_extra_convs = 'on_input'
-            else:
-                self.add_extra_convs = 'on_output'
-
+            self.add_extra_convs = 'on_input' if extra_convs_on_inputs else 'on_output'
         self.lateral_convs = nn.ModuleList()
         self.fpn_convs = nn.ModuleList()
 
@@ -191,9 +185,10 @@ class FPN(BaseModule):
             # use max pool to get more levels on top of outputs
             # (e.g., Faster R-CNN, Mask R-CNN)
             if not self.add_extra_convs:
-                for i in range(self.num_outs - used_backbone_levels):
-                    outs.append(F.max_pool2d(outs[-1], 1, stride=2))
-            # add conv layers on top of original feature maps (RetinaNet)
+                outs.extend(
+                    F.max_pool2d(outs[-1], 1, stride=2)
+                    for _ in range(self.num_outs - used_backbone_levels)
+                )
             else:
                 if self.add_extra_convs == 'on_input':
                     extra_source = inputs[self.backbone_end_level - 1]

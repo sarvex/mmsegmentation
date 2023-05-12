@@ -25,7 +25,8 @@ model = dict(
         norm_cfg=dict(type='LN', eps=1e-6),
         act_cfg=dict(type='GELU'),
         norm_eval=False,
-        init_values=0.1),
+        init_values=0.1,
+    ),
     neck=dict(type='Feature2Pyramid', embed_dim=768, rescales=[4, 2, 1, 0.5]),
     decode_head=dict(
         type='UPerHead',
@@ -38,7 +39,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=384,
@@ -51,7 +54,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

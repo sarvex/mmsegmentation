@@ -84,9 +84,7 @@ class DisentangledNonLocal2d(NonLocal2d):
         unary_x = unary_x.permute(0, 2, 1).contiguous().reshape(
             n, self.inter_channels, 1, 1)
 
-        output = x + self.conv_out(y + unary_x)
-
-        return output
+        return x + self.conv_out(y + unary_x)
 
 
 @MODELS.register_module()

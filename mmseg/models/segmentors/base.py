@@ -159,14 +159,13 @@ class BaseSegmentor(BaseModel, metaclass=ABCMeta):
                 else:
                     padding_size = img_meta['img_padding_size']
                 padding_left, padding_right, padding_top, padding_bottom =\
-                    padding_size
+                        padding_size
                 # i_seg_logits shape is 1, C, H, W after remove padding
                 i_seg_logits = seg_logits[i:i + 1, :,
                                           padding_top:H - padding_bottom,
                                           padding_left:W - padding_right]
 
-                flip = img_meta.get('flip', None)
-                if flip:
+                if flip := img_meta.get('flip', None):
                     flip_direction = img_meta.get('flip_direction', None)
                     assert flip_direction in ['horizontal', 'vertical']
                     if flip_direction == 'horizontal':

@@ -34,7 +34,8 @@ model = dict(
         align_corners=False,
         norm_cfg=norm_cfg,
         act_cfg=dict(type='ReLU', inplace=True),
-        init_cfg=dict(type='Pretrained', checkpoint=checkpoint_file)),
+        init_cfg=dict(type='Pretrained', checkpoint=checkpoint_file),
+    ),
     decode_head=dict(
         type='PIDHead',
         in_channels=128,
@@ -48,23 +49,28 @@ model = dict(
                 type='CrossEntropyLoss',
                 use_sigmoid=False,
                 class_weight=class_weight,
-                loss_weight=0.4),
+                loss_weight=0.4,
+            ),
             dict(
                 type='OhemCrossEntropy',
                 thres=0.9,
                 min_kept=131072,
                 class_weight=class_weight,
-                loss_weight=1.0),
+                loss_weight=1.0,
+            ),
             dict(type='BoundaryLoss', loss_weight=20.0),
             dict(
                 type='OhemCrossEntropy',
                 thres=0.9,
                 min_kept=131072,
                 class_weight=class_weight,
-                loss_weight=1.0)
-        ]),
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+                loss_weight=1.0,
+            ),
+        ],
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)
 
 train_pipeline = [
     dict(type='LoadImageFromFile'),

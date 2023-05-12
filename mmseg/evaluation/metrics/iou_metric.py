@@ -136,12 +136,12 @@ class IoUMetric(BaseMetric):
             ret_metric: np.round(np.nanmean(ret_metric_value) * 100, 2)
             for ret_metric, ret_metric_value in ret_metrics.items()
         })
-        metrics = dict()
+        metrics = {}
         for key, val in ret_metrics_summary.items():
             if key == 'aAcc':
                 metrics[key] = val
             else:
-                metrics['m' + key] = val
+                metrics[f'm{key}'] = val
 
         # each class table
         ret_metrics.pop('aAcc', None)

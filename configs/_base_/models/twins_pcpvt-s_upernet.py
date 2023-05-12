@@ -29,8 +29,9 @@ model = dict(
         sr_ratios=[8, 4, 2, 1],
         norm_after_stage=False,
         drop_rate=0.0,
-        attn_drop_rate=0.,
-        drop_path_rate=0.2),
+        attn_drop_rate=0.0,
+        drop_path_rate=0.2,
+    ),
     decode_head=dict(
         type='UPerHead',
         in_channels=[64, 128, 320, 512],
@@ -42,7 +43,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
     auxiliary_head=dict(
         type='FCNHead',
         in_channels=320,
@@ -55,7 +58,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=0.4
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

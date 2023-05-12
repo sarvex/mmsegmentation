@@ -63,10 +63,9 @@ class TestCityscapesMetric(TestCase):
             num_classes (int): number of different classes.
                 Default to 5.
         """
-        results_dict = dict()
         _, h, w = image_shapes
         seg_logit = torch.randn(batch_size, num_classes, h, w)
-        results_dict['seg_logits'] = seg_logit
+        results_dict = {'seg_logits': seg_logit}
         seg_pred = np.random.randint(
             0, num_classes, (batch_size, h, w), dtype=np.uint8)
         seg_pred = torch.LongTensor(seg_pred)

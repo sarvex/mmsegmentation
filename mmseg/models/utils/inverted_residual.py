@@ -86,10 +86,7 @@ class InvertedResidual(nn.Module):
     def forward(self, x):
 
         def _inner_forward(x):
-            if self.use_res_connect:
-                return x + self.conv(x)
-            else:
-                return self.conv(x)
+            return x + self.conv(x) if self.use_res_connect else self.conv(x)
 
         if self.with_cp and x.requires_grad:
             out = cp.checkpoint(_inner_forward, x)
@@ -200,10 +197,7 @@ class InvertedResidualV3(nn.Module):
 
             out = self.linear_conv(out)
 
-            if self.with_res_shortcut:
-                return x + out
-            else:
-                return out
+            return x + out if self.with_res_shortcut else out
 
         if self.with_cp and x.requires_grad:
             out = cp.checkpoint(_inner_forward, x)

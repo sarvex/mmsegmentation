@@ -20,11 +20,7 @@ def add_prefix(inputs, prefix):
         dict: The dict with keys updated with ``prefix``.
     """
 
-    outputs = dict()
-    for name, value in inputs.items():
-        outputs[f'{prefix}.{name}'] = value
-
-    return outputs
+    return {f'{prefix}.{name}': value for name, value in inputs.items()}
 
 
 def stack_batch(inputs: List[torch.Tensor],

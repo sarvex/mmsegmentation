@@ -127,7 +127,7 @@ class CityscapesMetric(BaseMetric):
             msg = '\n' + msg
         print_log(msg, logger=logger)
 
-        eval_results = dict()
+        eval_results = {}
         print_log(
             f'Evaluating results under {self.output_dir} ...', logger=logger)
 
@@ -137,14 +137,13 @@ class CityscapesMetric(BaseMetric):
         CSEval.args.JSONOutput = False
 
         pred_list, gt_list = zip(*results)
-        metric = dict()
-        eval_results.update(
-            CSEval.evaluateImgLists(pred_list, gt_list, CSEval.args))
-        metric['averageScoreCategories'] = eval_results[
-            'averageScoreCategories']
-        metric['averageScoreInstCategories'] = eval_results[
-            'averageScoreInstCategories']
-        return metric
+        eval_results |= CSEval.evaluateImgLists(pred_list, gt_list, CSEval.args)
+        return {
+            'averageScoreCategories': eval_results['averageScoreCategories'],
+            'averageScoreInstCategories': eval_results[
+                'averageScoreInstCategories'
+            ],
+        }
 
     @staticmethod
     def _convert_to_label_id(result):

@@ -127,16 +127,18 @@ class APCHead(BaseDecodeHead):
         assert isinstance(pool_scales, (list, tuple))
         self.pool_scales = pool_scales
         self.fusion = fusion
-        acm_modules = []
-        for pool_scale in self.pool_scales:
-            acm_modules.append(
-                ACM(pool_scale,
-                    self.fusion,
-                    self.in_channels,
-                    self.channels,
-                    conv_cfg=self.conv_cfg,
-                    norm_cfg=self.norm_cfg,
-                    act_cfg=self.act_cfg))
+        acm_modules = [
+            ACM(
+                pool_scale,
+                self.fusion,
+                self.in_channels,
+                self.channels,
+                conv_cfg=self.conv_cfg,
+                norm_cfg=self.norm_cfg,
+                act_cfg=self.act_cfg,
+            )
+            for pool_scale in self.pool_scales
+        ]
         self.acm_modules = nn.ModuleList(acm_modules)
         self.bottleneck = ConvModule(
             self.in_channels + len(pool_scales) * self.channels,
@@ -151,8 +153,7 @@ class APCHead(BaseDecodeHead):
         """Forward function."""
         x = self._transform_inputs(inputs)
         acm_outs = [x]
-        for acm_module in self.acm_modules:
-            acm_outs.append(acm_module(x))
+        acm_outs.extend(acm_module(x) for acm_module in self.acm_modules)
         acm_outs = torch.cat(acm_outs, dim=1)
         output = self.bottleneck(acm_outs)
         output = self.cls_seg(output)

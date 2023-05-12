@@ -215,9 +215,9 @@ class LocallyGroupedSelfAttention(BaseModule):
                                 self.window_size * self.window_size)
         # [1, _h*_w, window_size*window_size, window_size*window_size]
         attn_mask = mask.unsqueeze(2) - mask.unsqueeze(3)
-        attn_mask = attn_mask.masked_fill(attn_mask != 0,
-                                          float(-1000.0)).masked_fill(
-                                              attn_mask == 0, float(0.0))
+        attn_mask = attn_mask.masked_fill(attn_mask != 0, -1000.0).masked_fill(
+            attn_mask == 0, 0.0
+        )
 
         # [3, B, _w*_h, nhead, window_size*window_size, dim]
         qkv = self.qkv(x).reshape(b, _h * _w,
@@ -341,10 +341,7 @@ class ConditionalPositionEncoding(BaseModule):
         h, w = hw_shape
         feat_token = x
         cnn_feat = feat_token.transpose(1, 2).view(b, c, h, w)
-        if self.stride == 1:
-            x = self.proj(cnn_feat) + cnn_feat
-        else:
-            x = self.proj(cnn_feat)
+        x = self.proj(cnn_feat) + cnn_feat if self.stride == 1 else self.proj(cnn_feat)
         x = x.flatten(2).transpose(1, 2)
         return x
 
@@ -486,7 +483,7 @@ class PCPVT(BaseModule):
                         m, mean=0, std=math.sqrt(2.0 / fan_out), bias=0)
 
     def forward(self, x):
-        outputs = list()
+        outputs = []
 
         b = x.shape[0]
 

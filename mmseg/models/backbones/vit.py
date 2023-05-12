@@ -205,15 +205,15 @@ class VisionTransformer(BaseModule):
             if len(img_size) == 1:
                 img_size = to_2tuple(img_size[0])
             assert len(img_size) == 2, \
-                f'The size of image should have length 1 or 2, ' \
-                f'but got {len(img_size)}'
+                    f'The size of image should have length 1 or 2, ' \
+                    f'but got {len(img_size)}'
 
         if output_cls_token:
             assert with_cls_token is True, f'with_cls_token must be True if' \
-                f'set output_cls_token to True, but got {with_cls_token}'
+                    f'set output_cls_token to True, but got {with_cls_token}'
 
         assert not (init_cfg and pretrained), \
-            'init_cfg and pretrained cannot be set at the same time'
+                'init_cfg and pretrained cannot be set at the same time'
         if isinstance(pretrained, str):
             warnings.warn('DeprecationWarning: pretrained is deprecated, '
                           'please use "init_cfg" instead')
@@ -240,7 +240,7 @@ class VisionTransformer(BaseModule):
         )
 
         num_patches = (img_size[0] // patch_size) * \
-            (img_size[1] // patch_size)
+                (img_size[1] // patch_size)
 
         self.with_cls_token = with_cls_token
         self.output_cls_token = output_cls_token
@@ -253,7 +253,7 @@ class VisionTransformer(BaseModule):
             if out_indices == -1:
                 out_indices = num_layers - 1
             self.out_indices = [out_indices]
-        elif isinstance(out_indices, list) or isinstance(out_indices, tuple):
+        elif isinstance(out_indices, (list, tuple)):
             self.out_indices = out_indices
         else:
             raise TypeError('out_indices must be type of int, list or tuple')
@@ -300,18 +300,20 @@ class VisionTransformer(BaseModule):
             else:
                 state_dict = checkpoint
 
-            if 'pos_embed' in state_dict.keys():
-                if self.pos_embed.shape != state_dict['pos_embed'].shape:
-                    print_log(msg=f'Resize the pos_embed shape from '
-                              f'{state_dict["pos_embed"].shape} to '
-                              f'{self.pos_embed.shape}')
-                    h, w = self.img_size
-                    pos_size = int(
-                        math.sqrt(state_dict['pos_embed'].shape[1] - 1))
-                    state_dict['pos_embed'] = self.resize_pos_embed(
-                        state_dict['pos_embed'],
-                        (h // self.patch_size, w // self.patch_size),
-                        (pos_size, pos_size), self.interpolate_mode)
+            if (
+                'pos_embed' in state_dict.keys()
+                and self.pos_embed.shape != state_dict['pos_embed'].shape
+            ):
+                print_log(msg=f'Resize the pos_embed shape from '
+                          f'{state_dict["pos_embed"].shape} to '
+                          f'{self.pos_embed.shape}')
+                h, w = self.img_size
+                pos_size = int(
+                    math.sqrt(state_dict['pos_embed'].shape[1] - 1))
+                state_dict['pos_embed'] = self.resize_pos_embed(
+                    state_dict['pos_embed'],
+                    (h // self.patch_size, w // self.patch_size),
+                    (pos_size, pos_size), self.interpolate_mode)
 
             load_state_dict(self, state_dict, strict=False, logger=None)
         elif self.init_cfg is not None:
@@ -349,17 +351,18 @@ class VisionTransformer(BaseModule):
             torch.Tensor: The pos encoded image feature.
         """
         assert patched_img.ndim == 3 and pos_embed.ndim == 3, \
-            'the shapes of patched_img and pos_embed must be [B, L, C]'
+                'the shapes of patched_img and pos_embed must be [B, L, C]'
         x_len, pos_len = patched_img.shape[1], pos_embed.shape[1]
         if x_len != pos_len:
-            if pos_len == (self.img_size[0] // self.patch_size) * (
-                    self.img_size[1] // self.patch_size) + 1:
-                pos_h = self.img_size[0] // self.patch_size
-                pos_w = self.img_size[1] // self.patch_size
-            else:
-                raise ValueError(
-                    'Unexpected shape of pos_embed, got {}.'.format(
-                        pos_embed.shape))
+            if (
+                pos_len
+                != (self.img_size[0] // self.patch_size)
+                * (self.img_size[1] // self.patch_size)
+                + 1
+            ):
+                raise ValueError(f'Unexpected shape of pos_embed, got {pos_embed.shape}.')
+            pos_h = self.img_size[0] // self.patch_size
+            pos_w = self.img_size[1] // self.patch_size
             pos_embed = self.resize_pos_embed(pos_embed, hw_shape,
                                               (pos_h, pos_w),
                                               self.interpolate_mode)
@@ -412,15 +415,10 @@ class VisionTransformer(BaseModule):
         outs = []
         for i, layer in enumerate(self.layers):
             x = layer(x)
-            if i == len(self.layers) - 1:
-                if self.final_norm:
-                    x = self.norm1(x)
+            if i == len(self.layers) - 1 and self.final_norm:
+                x = self.norm1(x)
             if i in self.out_indices:
-                if self.with_cls_token:
-                    # Remove class token and reshape token for decoder head
-                    out = x[:, 1:]
-                else:
-                    out = x
+                out = x[:, 1:] if self.with_cls_token else x
                 B, _, C = out.shape
                 out = out.reshape(B, hw_shape[0], hw_shape[1],
                                   C).permute(0, 3, 1, 2).contiguous()

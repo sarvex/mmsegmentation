@@ -137,10 +137,7 @@ def binary_cross_entropy(pred,
     else:
         # should mask out the ignored elements
         valid_mask = ((label >= 0) & (label != ignore_index)).float()
-        if weight is not None:
-            weight = weight * valid_mask
-        else:
-            weight = valid_mask
+        weight = weight * valid_mask if weight is not None else valid_mask
     # average loss over non-ignored and valid elements
     if reduction == 'mean' and avg_factor is None and avg_non_ignore:
         avg_factor = valid_mask.sum().item()
@@ -248,8 +245,7 @@ class CrossEntropyLoss(nn.Module):
 
     def extra_repr(self):
         """Extra repr."""
-        s = f'avg_non_ignore={self.avg_non_ignore}'
-        return s
+        return f'avg_non_ignore={self.avg_non_ignore}'
 
     def forward(self,
                 cls_score,
@@ -267,8 +263,7 @@ class CrossEntropyLoss(nn.Module):
             class_weight = cls_score.new_tensor(self.class_weight)
         else:
             class_weight = None
-        # Note: for BCE loss, label < 0 is invalid.
-        loss_cls = self.loss_weight * self.cls_criterion(
+        return self.loss_weight * self.cls_criterion(
             cls_score,
             label,
             weight,
@@ -277,8 +272,8 @@ class CrossEntropyLoss(nn.Module):
             avg_factor=avg_factor,
             avg_non_ignore=self.avg_non_ignore,
             ignore_index=ignore_index,
-            **kwargs)
-        return loss_cls
+            **kwargs
+        )
 
     @property
     def loss_name(self):

@@ -127,8 +127,6 @@ class MobileNetV3(BaseModule):
         self.layers = self._make_layer()
 
     def _make_layer(self):
-        layers = []
-
         # build the first layer (layer0)
         in_channels = 16
         layer = ConvModule(
@@ -141,15 +139,14 @@ class MobileNetV3(BaseModule):
             norm_cfg=self.norm_cfg,
             act_cfg=dict(type='HSwish'))
         self.add_module('layer0', layer)
-        layers.append('layer0')
-
+        layers = ['layer0']
         layer_setting = self.arch_settings[self.arch]
         for i, params in enumerate(layer_setting):
             (kernel_size, mid_channels, out_channels, with_se, act,
              stride) = params
 
             if self.arch == 'large' and i >= 12 or self.arch == 'small' and \
-                    i >= 8:
+                        i >= 8:
                 mid_channels = mid_channels // self.reduction_factor
                 out_channels = out_channels // self.reduction_factor
 

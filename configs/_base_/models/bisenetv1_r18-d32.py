@@ -28,10 +28,12 @@ model = dict(
             norm_cfg=norm_cfg,
             norm_eval=False,
             style='pytorch',
-            contract_dilation=True),
+            contract_dilation=True,
+        ),
         norm_cfg=norm_cfg,
         align_corners=False,
-        init_cfg=None),
+        init_cfg=None,
+    ),
     decode_head=dict(
         type='FCNHead',
         in_channels=256,
@@ -44,7 +46,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
     auxiliary_head=[
         dict(
             type='FCNHead',
@@ -57,7 +61,9 @@ model = dict(
             concat_input=False,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+            ),
+        ),
         dict(
             type='FCNHead',
             in_channels=128,
@@ -69,8 +75,10 @@ model = dict(
             concat_input=False,
             align_corners=False,
             loss_decode=dict(
-                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+                type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+            ),
+        ),
     ],
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

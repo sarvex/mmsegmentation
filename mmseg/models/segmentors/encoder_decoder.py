@@ -124,31 +124,28 @@ class EncoderDecoder(BaseSegmentor):
         """Encode images with backbone and decode into a semantic segmentation
         map of the same size as input."""
         x = self.extract_feat(inputs)
-        seg_logits = self.decode_head.predict(x, batch_img_metas,
-                                              self.test_cfg)
-
-        return seg_logits
+        return self.decode_head.predict(x, batch_img_metas, self.test_cfg)
 
     def _decode_head_forward_train(self, inputs: List[Tensor],
                                    data_samples: SampleList) -> dict:
         """Run forward function and calculate loss for decode head in
         training."""
-        losses = dict()
+        losses = {}
         loss_decode = self.decode_head.loss(inputs, data_samples,
                                             self.train_cfg)
 
-        losses.update(add_prefix(loss_decode, 'decode'))
+        losses |= add_prefix(loss_decode, 'decode')
         return losses
 
     def _auxiliary_head_forward_train(self, inputs: List[Tensor],
                                       data_samples: SampleList) -> dict:
         """Run forward function and calculate loss for auxiliary head in
         training."""
-        losses = dict()
+        losses = {}
         if isinstance(self.auxiliary_head, nn.ModuleList):
             for idx, aux_head in enumerate(self.auxiliary_head):
                 loss_aux = aux_head.loss(inputs, data_samples, self.train_cfg)
-                losses.update(add_prefix(loss_aux, f'aux_{idx}'))
+                losses |= add_prefix(loss_aux, f'aux_{idx}')
         else:
             loss_aux = self.auxiliary_head.loss(inputs, data_samples,
                                                 self.train_cfg)
@@ -171,10 +168,10 @@ class EncoderDecoder(BaseSegmentor):
 
         x = self.extract_feat(inputs)
 
-        losses = dict()
+        losses = {}
 
         loss_decode = self._decode_head_forward_train(x, data_samples)
-        losses.update(loss_decode)
+        losses |= loss_decode
 
         if self.with_auxiliary_head:
             loss_aux = self._auxiliary_head_forward_train(x, data_samples)
@@ -285,9 +282,7 @@ class EncoderDecoder(BaseSegmentor):
 
                 count_mat[:, :, y1:y2, x1:x2] += 1
         assert (count_mat == 0).sum() == 0
-        seg_logits = preds / count_mat
-
-        return seg_logits
+        return preds / count_mat
 
     def whole_inference(self, inputs: Tensor,
                         batch_img_metas: List[dict]) -> Tensor:
@@ -307,9 +302,7 @@ class EncoderDecoder(BaseSegmentor):
                 input image.
         """
 
-        seg_logits = self.encode_decode(inputs, batch_img_metas)
-
-        return seg_logits
+        return self.encode_decode(inputs, batch_img_metas)
 
     def inference(self, inputs: Tensor, batch_img_metas: List[dict]) -> Tensor:
         """Inference with slide/whole style.
@@ -330,12 +323,11 @@ class EncoderDecoder(BaseSegmentor):
         assert self.test_cfg.mode in ['slide', 'whole']
         ori_shape = batch_img_metas[0]['ori_shape']
         assert all(_['ori_shape'] == ori_shape for _ in batch_img_metas)
-        if self.test_cfg.mode == 'slide':
-            seg_logit = self.slide_inference(inputs, batch_img_metas)
-        else:
-            seg_logit = self.whole_inference(inputs, batch_img_metas)
-
-        return seg_logit
+        return (
+            self.slide_inference(inputs, batch_img_metas)
+            if self.test_cfg.mode == 'slide'
+            else self.whole_inference(inputs, batch_img_metas)
+        )
 
     def aug_test(self, inputs, batch_img_metas, rescale=True):
         """Test with augmentations.

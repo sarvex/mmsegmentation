@@ -18,12 +18,9 @@ def check_url(url):
     Returns:
         int, bool: status code and check flag.
     """
-    flag = True
     r = requests.head(url)
     status_code = r.status_code
-    if status_code == 403 or status_code == 404:
-        flag = False
-
+    flag = status_code not in {403, 404}
     return status_code, flag
 
 
@@ -35,8 +32,7 @@ def parse_args():
         type=str,
         help='Select the model needed to check')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -80,15 +76,14 @@ def main():
             # use '-' to link model_time
             log_json_url_2 = f'https://download.openmmlab.com/mmsegmentation/v0.5/{model_name}/{config_name}/{config_name}-{model_time}.log.json'  # noqa
             status_code_2, flag_2 = check_url(log_json_url_2)
-            if flag_1 or flag_2:
-                if flag_1:
-                    logger.info(
-                        f'log.json | {config_name} | {log_json_url_1} | '
-                        f'{status_code_1} | valid')
-                else:
-                    logger.info(
-                        f'log.json | {config_name} | {log_json_url_2} | '
-                        f'{status_code_2} | valid')
+            if flag_1:
+                logger.info(
+                    f'log.json | {config_name} | {log_json_url_1} | '
+                    f'{status_code_1} | valid')
+            elif flag_2:
+                logger.info(
+                    f'log.json | {config_name} | {log_json_url_2} | '
+                    f'{status_code_2} | valid')
             else:
                 logger.error(
                     f'log.json | {config_name} | {log_json_url_1} & '

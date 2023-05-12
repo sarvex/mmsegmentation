@@ -61,22 +61,19 @@ def weight_reduce_loss(loss, weight=None, reduction='mean', avg_factor=None):
     if weight is not None:
         assert weight.dim() == loss.dim()
         if weight.dim() > 1:
-            assert weight.size(1) == 1 or weight.size(1) == loss.size(1)
+            assert weight.size(1) in [1, loss.size(1)]
         loss = loss * weight
 
     # if avg_factor is not specified, just reduce the loss
     if avg_factor is None:
         loss = reduce_loss(loss, reduction)
-    else:
-        # if reduction is mean, then average the loss by avg_factor
-        if reduction == 'mean':
-            # Avoid causing ZeroDivisionError when avg_factor is 0.0,
-            # i.e., all labels of an image belong to ignore index.
-            eps = torch.finfo(torch.float32).eps
-            loss = loss.sum() / (avg_factor + eps)
-        # if reduction is 'none', then do nothing, otherwise raise an error
-        elif reduction != 'none':
-            raise ValueError('avg_factor can not be used with reduction="sum"')
+    elif reduction == 'mean':
+        # Avoid causing ZeroDivisionError when avg_factor is 0.0,
+        # i.e., all labels of an image belong to ignore index.
+        eps = torch.finfo(torch.float32).eps
+        loss = loss.sum() / (avg_factor + eps)
+    elif reduction != 'none':
+        raise ValueError('avg_factor can not be used with reduction="sum"')
     return loss
 
 

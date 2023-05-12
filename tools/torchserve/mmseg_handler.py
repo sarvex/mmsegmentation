@@ -16,9 +16,11 @@ class MMsegHandler(BaseHandler):
     def initialize(self, context):
         properties = context.system_properties
         self.map_location = 'cuda' if torch.cuda.is_available() else 'cpu'
-        self.device = torch.device(self.map_location + ':' +
-                                   str(properties.get('gpu_id')) if torch.cuda.
-                                   is_available() else self.map_location)
+        self.device = torch.device(
+            (f'{self.map_location}:' + str(properties.get('gpu_id')))
+            if torch.cuda.is_available()
+            else self.map_location
+        )
         self.manifest = context.manifest
 
         model_dir = properties.get('model_dir')
@@ -43,8 +45,7 @@ class MMsegHandler(BaseHandler):
         return images
 
     def inference(self, data, *args, **kwargs):
-        results = [inference_model(self.model, img) for img in data]
-        return results
+        return [inference_model(self.model, img) for img in data]
 
     def postprocess(self, data):
         output = []

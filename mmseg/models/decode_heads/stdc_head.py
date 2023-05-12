@@ -93,5 +93,4 @@ class STDCHead(FCNHead):
             seg_data_sample.gt_sem_seg = PixelData(data=label)
             batch_sample_list.append(seg_data_sample)
 
-        loss = super().loss_by_feat(seg_logits, batch_sample_list)
-        return loss
+        return super().loss_by_feat(seg_logits, batch_sample_list)

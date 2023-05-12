@@ -246,11 +246,7 @@ class PatchMerging(BaseModule):
         super().__init__(init_cfg=init_cfg)
         self.in_channels = in_channels
         self.out_channels = out_channels
-        if stride:
-            stride = stride
-        else:
-            stride = kernel_size
-
+        stride = stride if stride else kernel_size
         kernel_size = to_2tuple(kernel_size)
         stride = to_2tuple(stride)
         dilation = to_2tuple(dilation)

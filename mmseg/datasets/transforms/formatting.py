@@ -60,7 +60,7 @@ class PackSegInputs(BaseTransform):
             - 'data_sample' (obj:`SegDataSample`): The annotation info of the
                 sample.
         """
-        packed_results = dict()
+        packed_results = {}
         if 'img' in results:
             img = results['img']
             if len(img.shape) < 3:
@@ -92,10 +92,7 @@ class PackSegInputs(BaseTransform):
                                                       ...].astype(np.int64)))
             data_sample.set_data(dict(gt_edge_map=PixelData(**gt_edge_data)))
 
-        img_meta = {}
-        for key in self.meta_keys:
-            if key in results:
-                img_meta[key] = results[key]
+        img_meta = {key: results[key] for key in self.meta_keys if key in results}
         data_sample.set_metainfo(img_meta)
         packed_results['data_samples'] = data_sample
 

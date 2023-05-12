@@ -51,7 +51,7 @@ class EMAModule(nn.Module):
         bases = self.bases.repeat(batch_size, 1, 1)
 
         with torch.no_grad():
-            for i in range(self.num_stages):
+            for _ in range(self.num_stages):
                 # [batch_size, height*width, num_bases]
                 attention = torch.einsum('bcn,bck->bnk', feats, bases)
                 attention = F.softmax(attention, dim=2)

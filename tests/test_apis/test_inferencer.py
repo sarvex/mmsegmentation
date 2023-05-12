@@ -57,7 +57,7 @@ class ExampleDataset(Dataset):
         ]
 
     def __getitem__(self, idx):
-        return dict(img=torch.tensor([1]), img_metas=dict())
+        return dict(img=torch.tensor([1]), img_metas={})
 
     def __len__(self):
         return 1

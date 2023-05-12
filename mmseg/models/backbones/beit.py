@@ -290,11 +290,11 @@ class BEiT(BaseModule):
             if len(img_size) == 1:
                 img_size = to_2tuple(img_size[0])
             assert len(img_size) == 2, \
-                f'The size of image should have length 1 or 2, ' \
-                f'but got {len(img_size)}'
+                    f'The size of image should have length 1 or 2, ' \
+                    f'but got {len(img_size)}'
 
         assert not (init_cfg and pretrained), \
-            'init_cfg and pretrained cannot be set at the same time'
+                'init_cfg and pretrained cannot be set at the same time'
         if isinstance(pretrained, str):
             warnings.warn('DeprecationWarning: pretrained is deprecated, '
                           'please use "init_cfg" instead')
@@ -331,7 +331,7 @@ class BEiT(BaseModule):
             if out_indices == -1:
                 out_indices = num_layers - 1
             self.out_indices = [out_indices]
-        elif isinstance(out_indices, list) or isinstance(out_indices, tuple):
+        elif isinstance(out_indices, (list, tuple)):
             self.out_indices = out_indices
         else:
             raise TypeError('out_indices must be type of int, list or tuple')
@@ -533,9 +533,8 @@ class BEiT(BaseModule):
         outs = []
         for i, layer in enumerate(self.layers):
             x = layer(x)
-            if i == len(self.layers) - 1:
-                if self.final_norm:
-                    x = self.norm1(x)
+            if i == len(self.layers) - 1 and self.final_norm:
+                x = self.norm1(x)
             if i in self.out_indices:
                 # Remove class token and reshape token for decoder head
                 out = x[:, 1:]

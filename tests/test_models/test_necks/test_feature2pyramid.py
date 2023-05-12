@@ -9,7 +9,7 @@ def test_feature2pyramid():
     # test
     rescales = [4, 2, 1, 0.5]
     embed_dim = 64
-    inputs = [torch.randn(1, embed_dim, 32, 32) for i in range(len(rescales))]
+    inputs = [torch.randn(1, embed_dim, 32, 32) for _ in range(len(rescales))]
 
     fpn = Feature2Pyramid(
         embed_dim, rescales, norm_cfg=dict(type='BN', requires_grad=True))
@@ -21,7 +21,7 @@ def test_feature2pyramid():
 
     # test rescales = [2, 1, 0.5, 0.25]
     rescales = [2, 1, 0.5, 0.25]
-    inputs = [torch.randn(1, embed_dim, 32, 32) for i in range(len(rescales))]
+    inputs = [torch.randn(1, embed_dim, 32, 32) for _ in range(len(rescales))]
 
     fpn = Feature2Pyramid(
         embed_dim, rescales, norm_cfg=dict(type='BN', requires_grad=True))

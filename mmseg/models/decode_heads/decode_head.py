@@ -124,7 +124,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
                               'applying a threshold')
             out_channels = num_classes
 
-        if out_channels != num_classes and out_channels != 1:
+        if out_channels not in [num_classes, 1]:
             raise ValueError(
                 'out_channels should be equal to num_classes,'
                 'except binary segmentation set out_channels == 1 and'
@@ -155,17 +155,11 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             self.sampler = None
 
         self.conv_seg = nn.Conv2d(channels, self.out_channels, kernel_size=1)
-        if dropout_ratio > 0:
-            self.dropout = nn.Dropout2d(dropout_ratio)
-        else:
-            self.dropout = None
+        self.dropout = nn.Dropout2d(dropout_ratio) if dropout_ratio > 0 else None
 
     def extra_repr(self):
         """Extra repr."""
-        s = f'input_transform={self.input_transform}, ' \
-            f'ignore_index={self.ignore_index}, ' \
-            f'align_corners={self.align_corners}'
-        return s
+        return f'input_transform={self.input_transform}, ignore_index={self.ignore_index}, align_corners={self.align_corners}'
 
     def _init_inputs(self, in_channels, in_index, input_transform):
         """Check and initialize input transforms.
@@ -241,8 +235,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """Classify each pixel."""
         if self.dropout is not None:
             feat = self.dropout(feat)
-        output = self.conv_seg(feat)
-        return output
+        return self.conv_seg(feat)
 
     def loss(self, inputs: Tuple[Tensor], batch_data_samples: SampleList,
              train_cfg: ConfigType) -> dict:
@@ -259,8 +252,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
             dict[str, Tensor]: a dictionary of loss components
         """
         seg_logits = self.forward(inputs)
-        losses = self.loss_by_feat(seg_logits, batch_data_samples)
-        return losses
+        return self.loss_by_feat(seg_logits, batch_data_samples)
 
     def predict(self, inputs: Tuple[Tensor], batch_img_metas: List[dict],
                 test_cfg: ConfigType) -> Tensor:
@@ -303,7 +295,7 @@ class BaseDecodeHead(BaseModule, metaclass=ABCMeta):
         """
 
         seg_label = self._stack_batch_gt(batch_data_samples)
-        loss = dict()
+        loss = {}
         seg_logits = resize(
             input=seg_logits,
             size=seg_label.shape[2:],

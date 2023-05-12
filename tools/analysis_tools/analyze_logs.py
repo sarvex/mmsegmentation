@@ -18,8 +18,7 @@ def plot_curve(log_dicts, args):
     if legend is None:
         legend = []
         for json_log in args.json_logs:
-            for metric in args.keys:
-                legend.append(f'{json_log}_{metric}')
+            legend.extend(f'{json_log}_{metric}' for metric in args.keys)
     assert len(legend) == (len(args.json_logs) * len(args.keys))
     metrics = args.keys
 
@@ -90,15 +89,14 @@ def parse_args():
     parser.add_argument(
         '--style', type=str, default='dark', help='style of plt')
     parser.add_argument('--out', type=str, default=None)
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def load_json_logs(json_logs):
     # load and convert json_logs to log_dict, key is step, value is a sub dict
     # keys of sub dict is different metrics
     # value of sub dict is a list of corresponding values of all iterations
-    log_dicts = [dict() for _ in json_logs]
+    log_dicts = [{} for _ in json_logs]
     prev_step = 0
     for json_log, log_dict in zip(json_logs, log_dicts):
         with open(json_log) as log_file:

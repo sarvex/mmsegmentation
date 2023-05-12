@@ -215,9 +215,9 @@ class ShiftWindowMSA(BaseModule):
             mask_windows = mask_windows.view(
                 -1, self.window_size * self.window_size)
             attn_mask = mask_windows.unsqueeze(1) - mask_windows.unsqueeze(2)
-            attn_mask = attn_mask.masked_fill(attn_mask != 0,
-                                              float(-100.0)).masked_fill(
-                                                  attn_mask == 0, float(0.0))
+            attn_mask = attn_mask.masked_fill(attn_mask != 0, -100.0).masked_fill(
+                attn_mask == 0, 0.0
+            )
         else:
             shifted_query = query
             attn_mask = None
@@ -437,7 +437,7 @@ class SwinBlockSequence(BaseModule):
                 num_heads=num_heads,
                 feedforward_channels=feedforward_channels,
                 window_size=window_size,
-                shift=False if i % 2 == 0 else True,
+                shift=i % 2 != 0,
                 qkv_bias=qkv_bias,
                 qk_scale=qk_scale,
                 drop_rate=drop_rate,
@@ -446,7 +446,8 @@ class SwinBlockSequence(BaseModule):
                 act_cfg=act_cfg,
                 norm_cfg=norm_cfg,
                 with_cp=with_cp,
-                init_cfg=None)
+                init_cfg=None,
+            )
             self.blocks.append(block)
 
         self.downsample = downsample

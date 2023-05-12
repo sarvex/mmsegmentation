@@ -8,7 +8,8 @@ model = dict(
         embed_dims=[64, 128, 320, 512],
         depths=[2, 2, 4, 2],
         init_cfg=dict(type='Pretrained', checkpoint=checkpoint_file),
-        norm_cfg=dict(type='BN', requires_grad=True)),
+        norm_cfg=dict(type='BN', requires_grad=True),
+    ),
     decode_head=dict(
         type='LightHamHead',
         in_channels=[128, 320, 512],
@@ -21,7 +22,9 @@ model = dict(
         norm_cfg=ham_norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

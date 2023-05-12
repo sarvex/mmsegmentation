@@ -96,9 +96,7 @@ def parse_args():
         '--force',
         action='store_true',
         help='overwrite the existing `{model_name}.mar`')
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
 
 
 if __name__ == '__main__':

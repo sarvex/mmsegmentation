@@ -16,16 +16,12 @@ def read_files_from_txt(txt_path):
 
 
 def read_nii_file(nii_path):
-    img = nib.load(nii_path).get_fdata()
-    return img
+    return nib.load(nii_path).get_fdata()
 
 
 def split_3d_image(img):
     c, _, _ = img.shape
-    res = []
-    for i in range(c):
-        res.append(img[i, :, :])
-    return res
+    return [img[i, :, :] for i in range(c)]
 
 
 def label_mapping(label):
@@ -58,8 +54,7 @@ def pares_args():
         default='data/synapse',
         type=str,
         help='save path of the dataset.')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -88,11 +83,9 @@ def main():
 
     # It follows data preparation pipeline from here:
     # https://github.com/Beckschen/TransUNet/tree/main/datasets
-    for i, idx in enumerate(train_id):
-        img_3d = read_nii_file(
-            osp.join(dataset_path, 'img', 'img' + idx + '.nii.gz'))
-        label_3d = read_nii_file(
-            osp.join(dataset_path, 'label', 'label' + idx + '.nii.gz'))
+    for idx in train_id:
+        img_3d = read_nii_file(osp.join(dataset_path, 'img', f'img{idx}.nii.gz'))
+        label_3d = read_nii_file(osp.join(dataset_path, 'label', f'label{idx}.nii.gz'))
 
         img_3d = np.clip(img_3d, -125, 275)
         img_3d = (img_3d + 125) / 400
@@ -112,18 +105,22 @@ def main():
             label = Image.fromarray(label).convert('L')
             img.save(
                 osp.join(
-                    save_path, 'img_dir/train', 'case' + idx.zfill(4) +
-                    '_slice' + str(c).zfill(3) + '.jpg'))
+                    save_path,
+                    'img_dir/train',
+                    f'case{idx.zfill(4)}_slice{str(c).zfill(3)}.jpg',
+                )
+            )
             label.save(
                 osp.join(
-                    save_path, 'ann_dir/train', 'case' + idx.zfill(4) +
-                    '_slice' + str(c).zfill(3) + '.png'))
+                    save_path,
+                    'ann_dir/train',
+                    f'case{idx.zfill(4)}_slice{str(c).zfill(3)}.png',
+                )
+            )
 
-    for i, idx in enumerate(test_id):
-        img_3d = read_nii_file(
-            osp.join(dataset_path, 'img', 'img' + idx + '.nii.gz'))
-        label_3d = read_nii_file(
-            osp.join(dataset_path, 'label', 'label' + idx + '.nii.gz'))
+    for idx in test_id:
+        img_3d = read_nii_file(osp.join(dataset_path, 'img', f'img{idx}.nii.gz'))
+        label_3d = read_nii_file(osp.join(dataset_path, 'label', f'label{idx}.nii.gz'))
 
         img_3d = np.clip(img_3d, -125, 275)
         img_3d = (img_3d + 125) / 400
@@ -143,12 +140,18 @@ def main():
             label = Image.fromarray(label).convert('L')
             img.save(
                 osp.join(
-                    save_path, 'img_dir/val', 'case' + idx.zfill(4) +
-                    '_slice' + str(c).zfill(3) + '.jpg'))
+                    save_path,
+                    'img_dir/val',
+                    f'case{idx.zfill(4)}_slice{str(c).zfill(3)}.jpg',
+                )
+            )
             label.save(
                 osp.join(
-                    save_path, 'ann_dir/val', 'case' + idx.zfill(4) +
-                    '_slice' + str(c).zfill(3) + '.png'))
+                    save_path,
+                    'ann_dir/val',
+                    f'case{idx.zfill(4)}_slice{str(c).zfill(3)}.png',
+                )
+            )
 
 
 if __name__ == '__main__':

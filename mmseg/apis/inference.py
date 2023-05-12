@@ -41,8 +41,9 @@ def init_model(config: Union[str, Path, Config],
     if isinstance(config, (str, Path)):
         config = Config.fromfile(config)
     elif not isinstance(config, Config):
-        raise TypeError('config must be a filename or Config object, '
-                        'but got {}'.format(type(config)))
+        raise TypeError(
+            f'config must be a filename or Config object, but got {type(config)}'
+        )
     if cfg_options is not None:
         config.merge_from_dict(cfg_options)
     elif 'init_cfg' in config.model.backbone:
@@ -71,11 +72,14 @@ def init_model(config: Union[str, Path, Config],
                 'checkpoint\'s meta data, classes and palette will be'
                 'set according to num_classes ')
             num_classes = model.decode_head.num_classes
-            dataset_name = None
-            for name in dataset_aliases.keys():
-                if len(get_classes(name)) == num_classes:
-                    dataset_name = name
-                    break
+            dataset_name = next(
+                (
+                    name
+                    for name in dataset_aliases.keys()
+                    if len(get_classes(name)) == num_classes
+                ),
+                None,
+            )
             if dataset_name is None:
                 warnings.warn(
                     'No suitable dataset found, use Cityscapes by default')
@@ -114,10 +118,7 @@ def _preprare_data(imgs: ImageType, model: BaseSegmentor):
 
     data = defaultdict(list)
     for img in imgs:
-        if isinstance(img, np.ndarray):
-            data_ = dict(img=img)
-        else:
-            data_ = dict(img_path=img)
+        data_ = dict(img=img) if isinstance(img, np.ndarray) else dict(img_path=img)
         data_ = pipeline(data_)
         data['inputs'].append(data_['inputs'])
         data['data_samples'].append(data_['data_samples'])
@@ -186,10 +187,7 @@ def show_result_pyplot(model: BaseSegmentor,
     """
     if hasattr(model, 'module'):
         model = model.module
-    if isinstance(img, str):
-        image = mmcv.imread(img)
-    else:
-        image = img
+    image = mmcv.imread(img) if isinstance(img, str) else img
     if save_dir is not None:
         mkdir_or_exist(save_dir)
     # init visualizer
@@ -209,6 +207,4 @@ def show_result_pyplot(model: BaseSegmentor,
         wait_time=wait_time,
         out_file=out_file,
         show=show)
-    vis_img = visualizer.get_image()
-
-    return vis_img
+    return visualizer.get_image()

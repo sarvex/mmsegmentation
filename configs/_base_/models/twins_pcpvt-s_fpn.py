@@ -29,13 +29,15 @@ model = dict(
         sr_ratios=[8, 4, 2, 1],
         norm_after_stage=False,
         drop_rate=0.0,
-        attn_drop_rate=0.,
-        drop_path_rate=0.2),
+        attn_drop_rate=0.0,
+        drop_path_rate=0.2,
+    ),
     neck=dict(
         type='FPN',
         in_channels=[64, 128, 320, 512],
         out_channels=256,
-        num_outs=4),
+        num_outs=4,
+    ),
     decode_head=dict(
         type='FPNHead',
         in_channels=[256, 256, 256, 256],
@@ -47,7 +49,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

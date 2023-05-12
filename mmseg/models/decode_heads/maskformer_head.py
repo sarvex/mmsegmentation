@@ -89,11 +89,8 @@ class MaskFormerHead(MMDET_MaskFormerHead):
             # remove ignored region
             gt_labels = classes[classes != self.ignore_index]
 
-            masks = []
-            for class_id in gt_labels:
-                masks.append(gt_sem_seg == class_id)
-
-            if len(masks) == 0:
+            masks = [gt_sem_seg == class_id for class_id in gt_labels]
+            if not masks:
                 gt_masks = torch.zeros((0, gt_sem_seg.shape[-2],
                                         gt_sem_seg.shape[-1])).to(gt_sem_seg)
             else:
@@ -127,11 +124,9 @@ class MaskFormerHead(MMDET_MaskFormerHead):
         # forward
         all_cls_scores, all_mask_preds = self(x, batch_data_samples)
 
-        # loss
-        losses = self.loss_by_feat(all_cls_scores, all_mask_preds,
-                                   batch_gt_instances, batch_img_metas)
-
-        return losses
+        return self.loss_by_feat(
+            all_cls_scores, all_mask_preds, batch_gt_instances, batch_img_metas
+        )
 
     def predict(self, x: Tuple[Tensor], batch_img_metas: List[dict],
                 test_cfg: ConfigType) -> Tuple[Tensor]:
@@ -170,5 +165,4 @@ class MaskFormerHead(MMDET_MaskFormerHead):
         # semantic inference
         cls_score = F.softmax(mask_cls_results, dim=-1)[..., :-1]
         mask_pred = mask_pred_results.sigmoid()
-        seg_logits = torch.einsum('bqc,bqhw->bchw', cls_score, mask_pred)
-        return seg_logits
+        return torch.einsum('bqc,bqhw->bchw', cls_score, mask_pred)

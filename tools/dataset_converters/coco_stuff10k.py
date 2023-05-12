@@ -217,15 +217,15 @@ def generate_coco_list(folder):
     with open(train_list) as f:
         for filename in f:
             basename = filename.strip()
-            imgpath = basename + '.jpg'
-            maskpath = basename + '.mat'
+            imgpath = f'{basename}.jpg'
+            maskpath = f'{basename}.mat'
             train_paths.append((imgpath, maskpath))
 
     with open(test_list) as f:
         for filename in f:
             basename = filename.strip()
-            imgpath = basename + '.jpg'
-            maskpath = basename + '.mat'
+            imgpath = f'{basename}.jpg'
+            maskpath = f'{basename}.mat'
             test_paths.append((imgpath, maskpath))
 
     return train_paths, test_paths
@@ -239,8 +239,7 @@ def parse_args():
     parser.add_argument('-o', '--out_dir', help='output path')
     parser.add_argument(
         '--nproc', default=16, type=int, help='number of process')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -258,9 +257,9 @@ def main():
     mkdir_or_exist(osp.join(out_mask_dir, 'test2014'))
 
     train_list, test_list = generate_coco_list(coco_path)
-    assert (len(train_list) +
-            len(test_list)) == COCO_LEN, 'Wrong length of list {} & {}'.format(
-                len(train_list), len(test_list))
+    assert (
+        len(train_list) + len(test_list)
+    ) == COCO_LEN, f'Wrong length of list {len(train_list)} & {len(test_list)}'
 
     if args.nproc > 1:
         track_parallel_progress(

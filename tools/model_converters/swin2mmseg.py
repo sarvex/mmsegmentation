@@ -49,10 +49,7 @@ def convert_swin(ckpt):
             new_k = new_k.replace('layers', 'stages', 1)
         elif k.startswith('patch_embed'):
             new_v = v
-            if 'proj' in k:
-                new_k = k.replace('proj', 'projection')
-            else:
-                new_k = k
+            new_k = k.replace('proj', 'projection') if 'proj' in k else k
         else:
             new_v = v
             new_k = k

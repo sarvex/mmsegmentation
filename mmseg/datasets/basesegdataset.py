@@ -167,22 +167,20 @@ class BaseSegDataset(BaseDataset):
                 new classes in self._metainfo
         """
         old_classes = cls.METAINFO.get('classes', None)
-        if (new_classes is not None and old_classes is not None
-                and list(new_classes) != list(old_classes)):
-
-            label_map = {}
-            if not set(new_classes).issubset(cls.METAINFO['classes']):
-                raise ValueError(
-                    f'new classes {new_classes} is not a '
-                    f'subset of classes {old_classes} in METAINFO.')
-            for i, c in enumerate(old_classes):
-                if c not in new_classes:
-                    label_map[i] = 255
-                else:
-                    label_map[i] = new_classes.index(c)
-            return label_map
-        else:
+        if (
+            new_classes is None
+            or old_classes is None
+            or list(new_classes) == list(old_classes)
+        ):
             return None
+        if not set(new_classes).issubset(cls.METAINFO['classes']):
+            raise ValueError(
+                f'new classes {new_classes} is not a '
+                f'subset of classes {old_classes} in METAINFO.')
+        return {
+            i: 255 if c not in new_classes else new_classes.index(c)
+            for i, c in enumerate(old_classes)
+        }
 
     def _update_palette(self) -> list:
         """Update palette after loading metainfo.
@@ -214,12 +212,13 @@ class BaseSegDataset(BaseDataset):
                 0, 255, size=(len(classes), 3)).tolist()
             np.random.set_state(state)
         elif len(palette) >= len(classes) and self.label_map is not None:
-            new_palette = []
-            # return subset of palette
-            for old_id, new_id in sorted(
-                    self.label_map.items(), key=lambda x: x[1]):
-                if new_id != 255:
-                    new_palette.append(palette[old_id])
+            new_palette = [
+                palette[old_id]
+                for old_id, new_id in sorted(
+                    self.label_map.items(), key=lambda x: x[1]
+                )
+                if new_id != 255
+            ]
             new_palette = type(palette)(new_palette)
         else:
             raise ValueError('palette does not match classes '

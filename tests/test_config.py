@@ -33,12 +33,11 @@ def test_config_build_segmentor():
     config_dpath = _get_config_directory()
     print(f'Found config_dpath = {config_dpath!r}')
 
-    config_fpaths = []
-    # one config each sub folder
-    for sub_folder in os.listdir(config_dpath):
-        if isdir(sub_folder):
-            config_fpaths.append(
-                list(glob.glob(join(config_dpath, sub_folder, '*.py')))[0])
+    config_fpaths = [
+        list(glob.glob(join(config_dpath, sub_folder, '*.py')))[0]
+        for sub_folder in os.listdir(config_dpath)
+        if isdir(sub_folder)
+    ]
     config_fpaths = [p for p in config_fpaths if p.find('_base_') == -1]
     config_names = [relpath(p, config_dpath) for p in config_fpaths]
 

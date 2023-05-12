@@ -144,17 +144,16 @@ class LearningRateDecayOptimizerConstructor(DefaultOptimWrapperConstructor):
                         name, self.paramwise_cfg.get('num_layers'))
                     print_log(f'set param {name} as id {layer_id}')
                 elif 'BEiT' in module.backbone.__class__.__name__ or \
-                     'MAE' in module.backbone.__class__.__name__:
+                         'MAE' in module.backbone.__class__.__name__:
                     layer_id = get_layer_id_for_vit(name, num_layers)
                     print_log(f'set param {name} as id {layer_id}')
                 else:
                     raise NotImplementedError()
             elif decay_type == 'stage_wise':
-                if 'ConvNeXt' in module.backbone.__class__.__name__:
-                    layer_id = get_stage_id_for_convnext(name, num_layers)
-                    print_log(f'set param {name} as id {layer_id}')
-                else:
+                if 'ConvNeXt' not in module.backbone.__class__.__name__:
                     raise NotImplementedError()
+                layer_id = get_stage_id_for_convnext(name, num_layers)
+                print_log(f'set param {name} as id {layer_id}')
             group_name = f'layer_{layer_id}_{group_name}'
 
             if group_name not in parameter_groups:
@@ -173,14 +172,15 @@ class LearningRateDecayOptimizerConstructor(DefaultOptimWrapperConstructor):
             parameter_groups[group_name]['param_names'].append(name)
         rank, _ = get_dist_info()
         if rank == 0:
-            to_display = {}
-            for key in parameter_groups:
-                to_display[key] = {
+            to_display = {
+                key: {
                     'param_names': parameter_groups[key]['param_names'],
                     'lr_scale': parameter_groups[key]['lr_scale'],
                     'lr': parameter_groups[key]['lr'],
                     'weight_decay': parameter_groups[key]['weight_decay'],
                 }
+                for key in parameter_groups
+            }
             print_log(f'Param groups = {json.dumps(to_display, indent=2)}')
         params.extend(parameter_groups.values())
 

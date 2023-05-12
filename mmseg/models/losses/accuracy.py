@@ -32,7 +32,7 @@ def accuracy(pred, target, topk=1, thresh=None, ignore_index=None):
 
     maxk = max(topk)
     if pred.size(0) == 0:
-        accu = [pred.new_tensor(0.) for i in range(len(topk))]
+        accu = [pred.new_tensor(0.) for _ in range(len(topk))]
         return accu[0] if return_single else accu
     assert pred.ndim == target.ndim + 1
     assert pred.size(0) == target.size(0)

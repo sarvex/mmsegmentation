@@ -77,5 +77,4 @@ class SETRUPHead(BaseDecodeHead):
 
         for up_conv in self.up_convs:
             x = up_conv(x)
-        out = self.cls_seg(x)
-        return out
+        return self.cls_seg(x)

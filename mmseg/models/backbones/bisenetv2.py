@@ -537,8 +537,7 @@ class BGALayer(BaseModule):
             size=fuse_1.shape[2:],
             mode='bilinear',
             align_corners=self.align_corners)
-        output = self.conv(fuse_1 + fuse_2)
-        return output
+        return self.conv(fuse_1 + fuse_2)
 
 
 @MODELS.register_module()

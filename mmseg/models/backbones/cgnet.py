@@ -155,10 +155,7 @@ class ContextGuidedBlock(nn.Module):
             # f_glo is employed to refine the joint feature
             out = self.f_glo(joi_feat)
 
-            if self.skip_connect:
-                return x + out
-            else:
-                return out
+            return x + out if self.skip_connect else out
 
         if self.with_cp and x.requires_grad:
             out = cp.checkpoint(_inner_forward, x)
@@ -174,7 +171,7 @@ class InputInjection(nn.Module):
     def __init__(self, num_downsampling):
         super().__init__()
         self.pool = nn.ModuleList()
-        for i in range(num_downsampling):
+        for _ in range(num_downsampling):
             self.pool.append(nn.AvgPool2d(3, stride=2, padding=1))
 
     def forward(self, x):
@@ -333,16 +330,13 @@ class CGNet(BaseModule):
             nn.PReLU(cur_channels))
 
     def forward(self, x):
-        output = []
-
         # stage 0
         inp_2x = self.inject_2x(x)
         inp_4x = self.inject_4x(x)
         for layer in self.stem:
             x = layer(x)
         x = self.norm_prelu_0(torch.cat([x, inp_2x], 1))
-        output.append(x)
-
+        output = [x]
         # stage 1
         for i, layer in enumerate(self.level1):
             x = layer(x)

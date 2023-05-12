@@ -42,10 +42,7 @@ class ObjectAttentionBlock(_SelfAttentionBlock):
 
     def __init__(self, in_channels, channels, scale, conv_cfg, norm_cfg,
                  act_cfg):
-        if scale > 1:
-            query_downsample = nn.MaxPool2d(kernel_size=scale)
-        else:
-            query_downsample = None
+        query_downsample = nn.MaxPool2d(kernel_size=scale) if scale > 1 else None
         super().__init__(
             key_in_channels=in_channels,
             query_in_channels=in_channels,
@@ -122,6 +119,4 @@ class OCRHead(BaseCascadeDecodeHead):
         feats = self.bottleneck(x)
         context = self.spatial_gather_module(feats, prev_output)
         object_context = self.object_context_block(feats, context)
-        output = self.cls_seg(object_context)
-
-        return output
+        return self.cls_seg(object_context)

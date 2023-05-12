@@ -20,8 +20,7 @@ def parse_args():
         default='.dev/benchmark_evaluation.sh',
         help='path to save model benchmark script')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def process_model_info(model_info, work_dir):
@@ -78,15 +77,7 @@ def main():
         assert args.out.endswith('.sh'), \
             f'Expected out file path suffix is .sh, but get .{out_suffix}'
 
-    commands = []
-    partition_name = 'PARTITION=$1'
-    commands.append(partition_name)
-    commands.append('\n')
-
-    checkpoint_root = 'CHECKPOINT_DIR=$2'
-    commands.append(checkpoint_root)
-    commands.append('\n')
-
+    commands = ['PARTITION=$1', '\n', 'CHECKPOINT_DIR=$2', '\n']
     script_name = osp.join('tools', 'slurm_test.sh')
     port = args.port
     work_dir = args.work_dir
@@ -104,8 +95,8 @@ def main():
                                   '$PARTITION')
             port += 1
 
-    command_str = ''.join(commands)
     if args.out:
+        command_str = ''.join(commands)
         with open(args.out, 'w') as f:
             f.write(command_str + '\n')
 

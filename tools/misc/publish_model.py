@@ -10,8 +10,7 @@ def parse_args():
         description='Process a checkpoint to be published')
     parser.add_argument('in_file', help='input checkpoint filename')
     parser.add_argument('out_file', help='output checkpoint filename')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def process_checkpoint(in_file, out_file):

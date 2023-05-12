@@ -109,16 +109,18 @@ class DMHead(BaseDecodeHead):
         assert isinstance(filter_sizes, (list, tuple))
         self.filter_sizes = filter_sizes
         self.fusion = fusion
-        dcm_modules = []
-        for filter_size in self.filter_sizes:
-            dcm_modules.append(
-                DCM(filter_size,
-                    self.fusion,
-                    self.in_channels,
-                    self.channels,
-                    conv_cfg=self.conv_cfg,
-                    norm_cfg=self.norm_cfg,
-                    act_cfg=self.act_cfg))
+        dcm_modules = [
+            DCM(
+                filter_size,
+                self.fusion,
+                self.in_channels,
+                self.channels,
+                conv_cfg=self.conv_cfg,
+                norm_cfg=self.norm_cfg,
+                act_cfg=self.act_cfg,
+            )
+            for filter_size in self.filter_sizes
+        ]
         self.dcm_modules = nn.ModuleList(dcm_modules)
         self.bottleneck = ConvModule(
             self.in_channels + len(filter_sizes) * self.channels,
@@ -133,8 +135,7 @@ class DMHead(BaseDecodeHead):
         """Forward function."""
         x = self._transform_inputs(inputs)
         dcm_outs = [x]
-        for dcm_module in self.dcm_modules:
-            dcm_outs.append(dcm_module(x))
+        dcm_outs.extend(dcm_module(x) for dcm_module in self.dcm_modules)
         dcm_outs = torch.cat(dcm_outs, dim=1)
         output = self.bottleneck(dcm_outs)
         output = self.cls_seg(output)

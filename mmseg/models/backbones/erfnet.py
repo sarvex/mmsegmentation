@@ -245,29 +245,16 @@ class ERFNet(BaseModule):
         super().__init__(init_cfg=init_cfg)
         assert len(enc_downsample_channels) \
                == len(dec_upsample_channels)+1, 'Number of downsample\
-                     block of encoder does not \
-                    match number of upsample block of decoder!'
         assert len(enc_downsample_channels) \
                == len(enc_stage_non_bottlenecks)+1, 'Number of \
-                    downsample block of encoder does not match \
-                    number of Non-bottleneck block of encoder!'
         assert len(enc_downsample_channels) \
                == len(enc_non_bottleneck_channels)+1, 'Number of \
-                    downsample block of encoder does not match \
-                    number of channels of Non-bottleneck block of encoder!'
         assert enc_stage_non_bottlenecks[-1] \
                % len(enc_non_bottleneck_dilations) == 0, 'Number of \
-                    Non-bottleneck block of encoder does not match \
-                    number of Non-bottleneck block of encoder!'
         assert len(dec_upsample_channels) \
                == len(dec_stages_non_bottleneck), 'Number of \
-                upsample block of decoder does not match \
-                number of Non-bottleneck block of decoder!'
         assert len(dec_stages_non_bottleneck) \
                == len(dec_non_bottleneck_channels), 'Number of \
-                Non-bottleneck block of decoder does not match \
-                number of channels of Non-bottleneck block of decoder!'
-
         self.in_channels = in_channels
         self.enc_downsample_channels = enc_downsample_channels
         self.enc_stage_non_bottlenecks = enc_stage_non_bottlenecks
@@ -296,14 +283,14 @@ class ERFNet(BaseModule):
             if i == len(enc_downsample_channels) - 2:
                 iteration_times = int(enc_stage_non_bottlenecks[-1] /
                                       len(enc_non_bottleneck_dilations))
-                for j in range(iteration_times):
+                for _ in range(iteration_times):
                     for k in range(len(enc_non_bottleneck_dilations)):
                         self.encoder.append(
                             NonBottleneck1d(enc_downsample_channels[-1],
                                             self.dropout_ratio,
                                             enc_non_bottleneck_dilations[k]))
             else:
-                for j in range(enc_stage_non_bottlenecks[i]):
+                for _ in range(enc_stage_non_bottlenecks[i]):
                     self.encoder.append(
                         NonBottleneck1d(enc_downsample_channels[i + 1],
                                         self.dropout_ratio))
@@ -317,7 +304,7 @@ class ERFNet(BaseModule):
                 self.decoder.append(
                     UpsamplerBlock(dec_non_bottleneck_channels[i - 1],
                                    dec_non_bottleneck_channels[i]))
-            for j in range(dec_stages_non_bottleneck[i]):
+            for _ in range(dec_stages_non_bottleneck[i]):
                 self.decoder.append(
                     NonBottleneck1d(dec_non_bottleneck_channels[i]))
 

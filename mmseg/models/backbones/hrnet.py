@@ -74,8 +74,8 @@ class HRModule(BaseModule):
         """Build one branch."""
         downsample = None
         if stride != 1 or \
-                self.in_channels[branch_index] != \
-                num_channels[branch_index] * block.expansion:
+                    self.in_channels[branch_index] != \
+                    num_channels[branch_index] * block.expansion:
             downsample = nn.Sequential(
                 build_conv_layer(
                     self.conv_cfg,
@@ -87,8 +87,7 @@ class HRModule(BaseModule):
                 build_norm_layer(self.norm_cfg, num_channels[branch_index] *
                                  block.expansion)[1])
 
-        layers = []
-        layers.append(
+        layers = [
             block(
                 self.in_channels[branch_index],
                 num_channels[branch_index],
@@ -97,29 +96,30 @@ class HRModule(BaseModule):
                 with_cp=self.with_cp,
                 norm_cfg=self.norm_cfg,
                 conv_cfg=self.conv_cfg,
-                init_cfg=self.block_init_cfg))
+                init_cfg=self.block_init_cfg,
+            )
+        ]
         self.in_channels[branch_index] = \
-            num_channels[branch_index] * block.expansion
-        for i in range(1, num_blocks[branch_index]):
-            layers.append(
-                block(
-                    self.in_channels[branch_index],
-                    num_channels[branch_index],
-                    with_cp=self.with_cp,
-                    norm_cfg=self.norm_cfg,
-                    conv_cfg=self.conv_cfg,
-                    init_cfg=self.block_init_cfg))
-
+                num_channels[branch_index] * block.expansion
+        layers.extend(
+            block(
+                self.in_channels[branch_index],
+                num_channels[branch_index],
+                with_cp=self.with_cp,
+                norm_cfg=self.norm_cfg,
+                conv_cfg=self.conv_cfg,
+                init_cfg=self.block_init_cfg,
+            )
+            for _ in range(1, num_blocks[branch_index])
+        )
         return Sequential(*layers)
 
     def _make_branches(self, num_branches, block, num_blocks, num_channels):
         """Build multiple branch."""
-        branches = []
-
-        for i in range(num_branches):
-            branches.append(
-                self._make_one_branch(i, block, num_blocks, num_channels))
-
+        branches = [
+            self._make_one_branch(i, block, num_blocks, num_channels)
+            for i in range(num_branches)
+        ]
         return ModuleList(branches)
 
     def _make_fuse_layers(self):
@@ -492,7 +492,6 @@ class HRNet(BaseModule):
                     bias=False),
                 build_norm_layer(self.norm_cfg, planes * block.expansion)[1])
 
-        layers = []
         block_init_cfg = None
         if self.pretrained is None and not hasattr(
                 self, 'init_cfg') and self.zero_init_residual:
@@ -503,7 +502,7 @@ class HRNet(BaseModule):
                 block_init_cfg = dict(
                     type='Constant', val=0, override=dict(name='norm3'))
 
-        layers.append(
+        layers = [
             block(
                 inplanes,
                 planes,
@@ -512,18 +511,21 @@ class HRNet(BaseModule):
                 with_cp=self.with_cp,
                 norm_cfg=self.norm_cfg,
                 conv_cfg=self.conv_cfg,
-                init_cfg=block_init_cfg))
+                init_cfg=block_init_cfg,
+            )
+        ]
         inplanes = planes * block.expansion
-        for i in range(1, blocks):
-            layers.append(
-                block(
-                    inplanes,
-                    planes,
-                    with_cp=self.with_cp,
-                    norm_cfg=self.norm_cfg,
-                    conv_cfg=self.conv_cfg,
-                    init_cfg=block_init_cfg))
-
+        layers.extend(
+            block(
+                inplanes,
+                planes,
+                with_cp=self.with_cp,
+                norm_cfg=self.norm_cfg,
+                conv_cfg=self.conv_cfg,
+                init_cfg=block_init_cfg,
+            )
+            for _ in range(1, blocks)
+        )
         return Sequential(*layers)
 
     def _make_stage(self, layer_config, in_channels, multiscale_output=True):
@@ -536,22 +538,20 @@ class HRNet(BaseModule):
 
         hr_modules = []
         block_init_cfg = None
-        if self.pretrained is None and not hasattr(
+        if block is BasicBlock:
+            if self.pretrained is None and not hasattr(
                 self, 'init_cfg') and self.zero_init_residual:
-            if block is BasicBlock:
                 block_init_cfg = dict(
                     type='Constant', val=0, override=dict(name='norm2'))
-            elif block is Bottleneck:
+        elif block is Bottleneck:
+            if self.pretrained is None and not hasattr(
+                self, 'init_cfg') and self.zero_init_residual:
                 block_init_cfg = dict(
                     type='Constant', val=0, override=dict(name='norm3'))
 
         for i in range(num_modules):
             # multi_scale_output is only used for the last module
-            if not multiscale_output and i == num_modules - 1:
-                reset_multiscale_output = False
-            else:
-                reset_multiscale_output = True
-
+            reset_multiscale_output = bool(multiscale_output or i != num_modules - 1)
             hr_modules.append(
                 HRModule(
                     num_branches,

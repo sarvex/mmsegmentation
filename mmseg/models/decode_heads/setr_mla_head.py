@@ -54,9 +54,7 @@ class SETRMLAHead(BaseDecodeHead):
 
     def forward(self, inputs):
         inputs = self._transform_inputs(inputs)
-        outs = []
-        for x, up_conv in zip(inputs, self.up_convs):
-            outs.append(up_conv(x))
+        outs = [up_conv(x) for x, up_conv in zip(inputs, self.up_convs)]
         out = torch.cat(outs, dim=1)
         out = self.cls_seg(out)
         return out

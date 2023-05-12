@@ -229,14 +229,14 @@ class FocalLoss(nn.Module):
             torch.Tensor: The calculated loss
         """
         assert isinstance(ignore_index, int), \
-            'ignore_index must be of type int'
+                'ignore_index must be of type int'
         assert reduction_override in (None, 'none', 'mean', 'sum'), \
-            "AssertionError: reduction should be 'none', 'mean' or " \
-            "'sum'"
+                "AssertionError: reduction should be 'none', 'mean' or " \
+                "'sum'"
         assert pred.shape == target.shape or \
-               (pred.size(0) == target.size(0) and
+                   (pred.size(0) == target.size(0) and
                 pred.shape[2:] == target.shape[1:]), \
-               "The shape of pred doesn't match the shape of target"
+                   "The shape of pred doesn't match the shape of target"
 
         original_shape = pred.shape
 
@@ -267,49 +267,48 @@ class FocalLoss(nn.Module):
 
         reduction = (
             reduction_override if reduction_override else self.reduction)
-        if self.use_sigmoid:
-            num_classes = pred.size(1)
-            if torch.cuda.is_available() and pred.is_cuda:
-                if target.dim() == 1:
-                    one_hot_target = F.one_hot(target, num_classes=num_classes)
-                else:
-                    one_hot_target = target
-                    target = target.argmax(dim=1)
-                    valid_mask = (target != ignore_index).view(-1, 1)
-                calculate_loss_func = sigmoid_focal_loss
-            else:
-                one_hot_target = None
-                if target.dim() == 1:
-                    target = F.one_hot(target, num_classes=num_classes)
-                else:
-                    valid_mask = (target.argmax(dim=1) != ignore_index).view(
-                        -1, 1)
-                calculate_loss_func = py_sigmoid_focal_loss
-
-            loss_cls = self.loss_weight * calculate_loss_func(
-                pred,
-                target,
-                one_hot_target,
-                weight,
-                gamma=self.gamma,
-                alpha=self.alpha,
-                class_weight=self.class_weight,
-                valid_mask=valid_mask,
-                reduction=reduction,
-                avg_factor=avg_factor)
-
-            if reduction == 'none':
-                # [N, C] -> [C, N]
-                loss_cls = loss_cls.transpose(0, 1)
-                # [C, N] -> [C, B, d1, d2, ...]
-                # original_shape: [B, C, d1, d2, ...]
-                loss_cls = loss_cls.reshape(original_shape[1],
-                                            original_shape[0],
-                                            *original_shape[2:])
-                # [C, B, d1, d2, ...] -> [B, C, d1, d2, ...]
-                loss_cls = loss_cls.transpose(0, 1).contiguous()
-        else:
+        if not self.use_sigmoid:
             raise NotImplementedError
+        num_classes = pred.size(1)
+        if torch.cuda.is_available() and pred.is_cuda:
+            if target.dim() == 1:
+                one_hot_target = F.one_hot(target, num_classes=num_classes)
+            else:
+                one_hot_target = target
+                target = target.argmax(dim=1)
+                valid_mask = (target != ignore_index).view(-1, 1)
+            calculate_loss_func = sigmoid_focal_loss
+        else:
+            one_hot_target = None
+            if target.dim() == 1:
+                target = F.one_hot(target, num_classes=num_classes)
+            else:
+                valid_mask = (target.argmax(dim=1) != ignore_index).view(
+                    -1, 1)
+            calculate_loss_func = py_sigmoid_focal_loss
+
+        loss_cls = self.loss_weight * calculate_loss_func(
+            pred,
+            target,
+            one_hot_target,
+            weight,
+            gamma=self.gamma,
+            alpha=self.alpha,
+            class_weight=self.class_weight,
+            valid_mask=valid_mask,
+            reduction=reduction,
+            avg_factor=avg_factor)
+
+        if reduction == 'none':
+            # [N, C] -> [C, N]
+            loss_cls = loss_cls.transpose(0, 1)
+            # [C, N] -> [C, B, d1, d2, ...]
+            # original_shape: [B, C, d1, d2, ...]
+            loss_cls = loss_cls.reshape(original_shape[1],
+                                        original_shape[0],
+                                        *original_shape[2:])
+            # [C, B, d1, d2, ...] -> [B, C, d1, d2, ...]
+            loss_cls = loss_cls.transpose(0, 1).contiguous()
         return loss_cls
 
     @property

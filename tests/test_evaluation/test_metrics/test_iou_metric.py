@@ -73,8 +73,9 @@ class TestIoUMetric(TestCase):
         iou_metric = IoUMetric(iou_metrics=['mIoU'])
         iou_metric.dataset_meta = dict(
             classes=['wall', 'building', 'sky', 'floor', 'tree'],
-            label_map=dict(),
-            reduce_zero_label=False)
+            label_map={},
+            reduce_zero_label=False,
+        )
         iou_metric.process([0] * len(data_samples), data_samples)
         res = iou_metric.evaluate(2)
         self.assertIsInstance(res, dict)
@@ -83,8 +84,9 @@ class TestIoUMetric(TestCase):
         iou_metric = IoUMetric(iou_metrics=['mIoU'], output_dir='tmp')
         iou_metric.dataset_meta = dict(
             classes=['wall', 'building', 'sky', 'floor', 'tree'],
-            label_map=dict(),
-            reduce_zero_label=False)
+            label_map={},
+            reduce_zero_label=False,
+        )
         iou_metric.process([0] * len(data_samples), data_samples)
         assert osp.exists('tmp')
         assert osp.isfile('tmp/00000_img.png')
@@ -95,8 +97,9 @@ class TestIoUMetric(TestCase):
             iou_metrics=['mIoU'], output_dir='tmp', format_only=True)
         iou_metric.dataset_meta = dict(
             classes=['wall', 'building', 'sky', 'floor', 'tree'],
-            label_map=dict(),
-            reduce_zero_label=False)
+            label_map={},
+            reduce_zero_label=False,
+        )
         iou_metric.process([0] * len(data_samples), data_samples)
         assert iou_metric.results == []
         assert osp.exists('tmp')

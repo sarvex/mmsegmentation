@@ -11,7 +11,7 @@ def test_multilevel_neck():
 
     # Test multi feature maps
     in_channels = [32, 64, 128, 256]
-    inputs = [torch.randn(1, c, 14, 14) for i, c in enumerate(in_channels)]
+    inputs = [torch.randn(1, c, 14, 14) for c in in_channels]
 
     neck = MultiLevelNeck(in_channels, 32)
     outputs = neck(inputs)

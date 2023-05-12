@@ -213,7 +213,7 @@ class MMSegInferencer(BaseInferencer):
         Returns:
             List[np.ndarray]: Visualization results.
         """
-        if self.visualizer is None or (not show and img_out_dir == ''):
+        if self.visualizer is None or not show and not img_out_dir:
             return None
 
         if getattr(self, 'visualizer') is None:
@@ -232,14 +232,14 @@ class MMSegInferencer(BaseInferencer):
                 img_name = osp.basename(single_input)
             elif isinstance(single_input, np.ndarray):
                 img = single_input.copy()
-                img_num = str(self.num_visualized_imgs).zfill(8) + '_vis'
+                img_num = f'{str(self.num_visualized_imgs).zfill(8)}_vis'
                 img_name = f'{img_num}.jpg'
             else:
                 raise ValueError('Unsupported input type:'
                                  f'{type(single_input)}')
 
             out_file = osp.join(img_out_dir, img_name) if img_out_dir != ''\
-                else None
+                    else None
 
             self.visualizer.add_datasample(
                 img_name,
@@ -289,15 +289,8 @@ class MMSegInferencer(BaseInferencer):
               with label indice.
         """
         if return_datasample:
-            if len(preds) == 1:
-                return preds[0]
-            else:
-                return preds
-
-        results_dict = {}
-
-        results_dict['predictions'] = []
-        results_dict['visualization'] = []
+            return preds[0] if len(preds) == 1 else preds
+        results_dict = {'predictions': [], 'visualization': []}
 
         for i, pred in enumerate(preds):
             pred_data = pred.pred_sem_seg.numpy().data[0]
@@ -307,7 +300,7 @@ class MMSegInferencer(BaseInferencer):
                 results_dict['visualization'].append(vis)
             if pred_out_dir != '':
                 mmengine.mkdir_or_exist(pred_out_dir)
-                img_name = str(self.num_pred_imgs).zfill(8) + '_pred.png'
+                img_name = f'{str(self.num_pred_imgs).zfill(8)}_pred.png'
                 img_path = osp.join(pred_out_dir, img_name)
                 output = Image.fromarray(pred_data.astype(np.uint8))
                 output.save(img_path)
@@ -317,7 +310,7 @@ class MMSegInferencer(BaseInferencer):
             results_dict['predictions'] = results_dict['predictions'][0]
             if visualization is not None:
                 results_dict['visualization'] = \
-                    results_dict['visualization'][0]
+                        results_dict['visualization'][0]
         return results_dict
 
     def _init_pipeline(self, cfg: ConfigType) -> Compose:
@@ -355,7 +348,11 @@ class MMSegInferencer(BaseInferencer):
 
         If the transform is not found, returns -1.
         """
-        for i, transform in enumerate(pipeline_cfg):
-            if transform['type'] == name:
-                return i
-        return -1
+        return next(
+            (
+                i
+                for i, transform in enumerate(pipeline_cfg)
+                if transform['type'] == name
+            ),
+            -1,
+        )

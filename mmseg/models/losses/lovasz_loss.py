@@ -23,7 +23,7 @@ def lovasz_grad(gt_sorted):
     union = gts + (1 - gt_sorted).float().cumsum(0)
     jaccard = 1. - intersection / union
     if p > 1:  # cover 1-pixel case
-        jaccard[1:p] = jaccard[1:p] - jaccard[0:-1]
+        jaccard[1:p] = jaccard[1:p] - jaccard[:-1]
     return jaccard
 
 
@@ -77,8 +77,7 @@ def lovasz_hinge_flat(logits, labels):
     perm = perm.data
     gt_sorted = labels[perm]
     grad = lovasz_grad(gt_sorted)
-    loss = torch.dot(F.relu(errors_sorted), grad)
-    return loss
+    return torch.dot(F.relu(errors_sorted), grad)
 
 
 def lovasz_hinge(logits,
@@ -261,10 +260,7 @@ class LovaszLoss(nn.Module):
         assert loss_type in ('binary', 'multi_class'), "loss_type should be \
                                                     'binary' or 'multi_class'."
 
-        if loss_type == 'binary':
-            self.cls_criterion = lovasz_hinge
-        else:
-            self.cls_criterion = lovasz_softmax
+        self.cls_criterion = lovasz_hinge if loss_type == 'binary' else lovasz_softmax
         assert classes in ('all', 'present') or is_list_of(classes, int)
         if not per_image:
             assert reduction == 'none', "reduction should be 'none' when \
@@ -297,7 +293,7 @@ class LovaszLoss(nn.Module):
         if self.cls_criterion == lovasz_softmax:
             cls_score = F.softmax(cls_score, dim=1)
 
-        loss_cls = self.loss_weight * self.cls_criterion(
+        return self.loss_weight * self.cls_criterion(
             cls_score,
             label,
             self.classes,
@@ -305,8 +301,8 @@ class LovaszLoss(nn.Module):
             class_weight=class_weight,
             reduction=reduction,
             avg_factor=avg_factor,
-            **kwargs)
-        return loss_cls
+            **kwargs
+        )
 
     @property
     def loss_name(self):

@@ -36,9 +36,7 @@ class BaseCascadeDecodeHead(BaseDecodeHead, metaclass=ABCMeta):
             dict[str, Tensor]: a dictionary of loss components
         """
         seg_logits = self.forward(inputs, prev_output)
-        losses = self.loss_by_feat(seg_logits, batch_data_samples)
-
-        return losses
+        return self.loss_by_feat(seg_logits, batch_data_samples)
 
     def predict(self, inputs: List[Tensor], prev_output: Tensor,
                 batch_img_metas: List[dict], tese_cfg: ConfigType):

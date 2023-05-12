@@ -127,11 +127,9 @@ def test_mask2former_head():
     ]
 
     data_samples: SampleList = []
-    for i in range(2):
+    for _ in range(2):
         data_sample = SegDataSample()
-        img_meta = {}
-        img_meta['img_shape'] = (32, 32)
-        img_meta['ori_shape'] = (32, 32)
+        img_meta = {'img_shape': (32, 32), 'ori_shape': (32, 32)}
         data_sample.gt_sem_seg = PixelData(
             data=torch.randint(0, num_classes, (1, 32, 32)))
         data_sample.set_metainfo(img_meta)
@@ -145,9 +143,6 @@ def test_mask2former_head():
     loss_dict = head.loss(inputs, data_samples, None)
     assert isinstance(loss_dict, dict)
 
-    batch_img_metas = []
-    for data_sample in data_samples:
-        batch_img_metas.append(data_sample.metainfo)
-
+    batch_img_metas = [data_sample.metainfo for data_sample in data_samples]
     seg_logits = head.predict(inputs, batch_img_metas, None)
     assert seg_logits.shape == torch.Size((2, num_classes, 32, 32))

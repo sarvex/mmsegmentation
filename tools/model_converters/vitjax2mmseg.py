@@ -8,26 +8,17 @@ import torch
 
 
 def vit_jax_to_torch(jax_weights, num_layer=12):
-    torch_weights = dict()
-
     # patch embedding
     conv_filters = jax_weights['embedding/kernel']
     conv_filters = conv_filters.permute(3, 2, 0, 1)
-    torch_weights['patch_embed.projection.weight'] = conv_filters
-    torch_weights['patch_embed.projection.bias'] = jax_weights[
-        'embedding/bias']
-
-    # pos embedding
-    torch_weights['pos_embed'] = jax_weights[
-        'Transformer/posembed_input/pos_embedding']
-
-    # cls token
-    torch_weights['cls_token'] = jax_weights['cls']
-
-    # head
-    torch_weights['ln1.weight'] = jax_weights['Transformer/encoder_norm/scale']
-    torch_weights['ln1.bias'] = jax_weights['Transformer/encoder_norm/bias']
-
+    torch_weights = {
+        'patch_embed.projection.weight': conv_filters,
+        'patch_embed.projection.bias': jax_weights['embedding/bias'],
+        'pos_embed': jax_weights['Transformer/posembed_input/pos_embedding'],
+        'cls_token': jax_weights['cls'],
+        'ln1.weight': jax_weights['Transformer/encoder_norm/scale'],
+        'ln1.bias': jax_weights['Transformer/encoder_norm/bias'],
+    }
     # transformer blocks
     for i in range(num_layer):
         jax_block = f'Transformer/encoderblock_{i}'
@@ -110,10 +101,7 @@ def main():
     for key in jax_weights.files:
         value = torch.from_numpy(jax_weights[key])
         jax_weights_tensor[key] = value
-    if 'L_16-i21k' in args.src:
-        num_layer = 24
-    else:
-        num_layer = 12
+    num_layer = 24 if 'L_16-i21k' in args.src else 12
     torch_weights = vit_jax_to_torch(jax_weights_tensor, num_layer)
     mmengine.mkdir_or_exist(osp.dirname(args.dst))
     torch.save(torch_weights, args.dst)

@@ -42,22 +42,24 @@ optimizer = dict(
 backbone_norm_multi = dict(lr_mult=1.0, decay_mult=0.0)
 backbone_embed_multi = dict(lr_mult=1.0, decay_mult=0.0)
 embed_multi = dict(decay_mult=0.0)
-custom_keys = {
-    'backbone': dict(lr_mult=1.0),
-    'backbone.patch_embed.norm': backbone_norm_multi,
-    'backbone.norm': backbone_norm_multi,
-    'relative_position_bias_table': backbone_embed_multi,
-    'query_embed': embed_multi,
-}
-custom_keys.update({
-    f'backbone.stages.{stage_id}.blocks.{block_id}.norm': backbone_norm_multi
-    for stage_id, num_blocks in enumerate(depths)
-    for block_id in range(num_blocks)
-})
-custom_keys.update({
-    f'backbone.stages.{stage_id}.downsample.norm': backbone_norm_multi
-    for stage_id in range(len(depths) - 1)
-})
+custom_keys = (
+    {
+        'backbone': dict(lr_mult=1.0),
+        'backbone.patch_embed.norm': backbone_norm_multi,
+        'backbone.norm': backbone_norm_multi,
+        'relative_position_bias_table': backbone_embed_multi,
+        'query_embed': embed_multi,
+    }
+    | {
+        f'backbone.stages.{stage_id}.blocks.{block_id}.norm': backbone_norm_multi
+        for stage_id, num_blocks in enumerate(depths)
+        for block_id in range(num_blocks)
+    }
+    | {
+        f'backbone.stages.{stage_id}.downsample.norm': backbone_norm_multi
+        for stage_id in range(len(depths) - 1)
+    }
+)
 # optimizer
 optim_wrapper = dict(
     _delete_=True,

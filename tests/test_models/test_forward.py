@@ -87,8 +87,7 @@ def _get_config_module(fname):
     from mmengine import Config
     config_dpath = _get_config_directory()
     config_fpath = join(config_dpath, fname)
-    config_mod = Config.fromfile(config_fpath)
-    return config_mod
+    return Config.fromfile(config_fpath)
 
 
 def _get_segmentor_cfg(fname):

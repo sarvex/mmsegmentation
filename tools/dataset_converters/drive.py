@@ -19,19 +19,14 @@ def parse_args():
         'testing_path', help='the testing part of DRIVE dataset')
     parser.add_argument('--tmp_dir', help='path of the temporary directory')
     parser.add_argument('-o', '--out_dir', help='output path')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
     args = parse_args()
     training_path = args.training_path
     testing_path = args.testing_path
-    if args.out_dir is None:
-        out_dir = osp.join('data', 'DRIVE')
-    else:
-        out_dir = args.out_dir
-
+    out_dir = osp.join('data', 'DRIVE') if args.out_dir is None else args.out_dir
     print('Making directories...')
     mkdir_or_exist(out_dir)
     mkdir_or_exist(osp.join(out_dir, 'images'))
@@ -63,8 +58,13 @@ def main():
             ret, img = cap.read()
             mmcv.imwrite(
                 img[:, :, 0] // 128,
-                osp.join(out_dir, 'annotations', 'training',
-                         osp.splitext(img_name)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'annotations',
+                    'training',
+                    f'{osp.splitext(img_name)[0]}.png',
+                ),
+            )
 
         print('Extracting test.zip...')
         zip_file = zipfile.ZipFile(testing_path)
@@ -92,8 +92,13 @@ def main():
                 # else 0'
                 mmcv.imwrite(
                     img[:, :, 0] // 128,
-                    osp.join(out_dir, 'annotations', 'validation',
-                             osp.splitext(img_name)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        'annotations',
+                        'validation',
+                        f'{osp.splitext(img_name)[0]}.png',
+                    ),
+                )
 
         now_dir = osp.join(tmp_dir, 'test', '2nd_manual')
         if osp.exists(now_dir):
@@ -102,8 +107,13 @@ def main():
                 ret, img = cap.read()
                 mmcv.imwrite(
                     img[:, :, 0] // 128,
-                    osp.join(out_dir, 'annotations', 'validation',
-                             osp.splitext(img_name)[0] + '.png'))
+                    osp.join(
+                        out_dir,
+                        'annotations',
+                        'validation',
+                        f'{osp.splitext(img_name)[0]}.png',
+                    ),
+                )
 
         print('Removing the temporary files...')
 

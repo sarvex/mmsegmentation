@@ -59,5 +59,4 @@ class TIMMBackbone(BaseModule):
             self._is_init = True
 
     def forward(self, x):
-        features = self.timm_model(x)
-        return features
+        return self.timm_model(x)

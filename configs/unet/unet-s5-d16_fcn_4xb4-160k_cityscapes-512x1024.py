@@ -8,9 +8,9 @@ model = dict(
     data_preprocessor=data_preprocessor,
     decode_head=dict(num_classes=19),
     auxiliary_head=dict(num_classes=19),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)
 train_dataloader = dict(batch_size=4, num_workers=4)
 val_dataloader = dict(batch_size=1, num_workers=4)
 test_dataloader = val_dataloader

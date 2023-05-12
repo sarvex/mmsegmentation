@@ -94,9 +94,10 @@ class SelfAttentionBlock(nn.Module):
 
     def init_weights(self):
         """Initialize weight of later layer."""
-        if self.out_project is not None:
-            if not isinstance(self.out_project, ConvModule):
-                constant_init(self.out_project, 0)
+        if self.out_project is not None and not isinstance(
+            self.out_project, ConvModule
+        ):
+            constant_init(self.out_project, 0)
 
     def build_project(self, in_channels, channels, num_convs, use_conv_module,
                       conv_cfg, norm_cfg, act_cfg):
@@ -111,23 +112,21 @@ class SelfAttentionBlock(nn.Module):
                     norm_cfg=norm_cfg,
                     act_cfg=act_cfg)
             ]
-            for _ in range(num_convs - 1):
-                convs.append(
-                    ConvModule(
-                        channels,
-                        channels,
-                        1,
-                        conv_cfg=conv_cfg,
-                        norm_cfg=norm_cfg,
-                        act_cfg=act_cfg))
+            convs.extend(
+                ConvModule(
+                    channels,
+                    channels,
+                    1,
+                    conv_cfg=conv_cfg,
+                    norm_cfg=norm_cfg,
+                    act_cfg=act_cfg,
+                )
+                for _ in range(num_convs - 1)
+            )
         else:
             convs = [nn.Conv2d(in_channels, channels, 1)]
-            for _ in range(num_convs - 1):
-                convs.append(nn.Conv2d(channels, channels, 1))
-        if len(convs) > 1:
-            convs = nn.Sequential(*convs)
-        else:
-            convs = convs[0]
+            convs.extend(nn.Conv2d(channels, channels, 1) for _ in range(num_convs - 1))
+        convs = nn.Sequential(*convs) if len(convs) > 1 else convs[0]
         return convs
 
     def forward(self, query_feats, key_feats):

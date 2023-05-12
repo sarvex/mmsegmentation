@@ -39,7 +39,7 @@ class STDCModule(BaseModule):
         assert num_convs > 1
         assert fusion_type in ['add', 'cat']
         self.stride = stride
-        self.with_downsample = True if self.stride == 2 else False
+        self.with_downsample = self.stride == 2
         self.fusion_type = fusion_type
 
         self.layers = ModuleList()
@@ -94,11 +94,11 @@ class STDCModule(BaseModule):
                     act_cfg=act_cfg))
 
     def forward(self, inputs):
-        if self.fusion_type == 'add':
-            out = self.forward_add(inputs)
-        else:
-            out = self.forward_cat(inputs)
-        return out
+        return (
+            self.forward_add(inputs)
+            if self.fusion_type == 'add'
+            else self.forward_cat(inputs)
+        )
 
     def forward_add(self, inputs):
         layer_outputs = []
@@ -116,10 +116,7 @@ class STDCModule(BaseModule):
         layer_outputs = [x0]
         for i, layer in enumerate(self.layers[1:]):
             if i == 0:
-                if self.with_downsample:
-                    x = layer(self.downsample(x0))
-                else:
-                    x = layer(x0)
+                x = layer(self.downsample(x0)) if self.with_downsample else layer(x0)
             else:
                 x = layer(x)
             layer_outputs.append(x)
@@ -301,17 +298,18 @@ class STDCNet(BaseModule):
 
     def _make_stage(self, in_channels, out_channels, strides, norm_cfg,
                     act_cfg, bottleneck_type):
-        layers = []
-        for i, stride in enumerate(strides):
-            layers.append(
-                STDCModule(
-                    in_channels if i == 0 else out_channels,
-                    out_channels,
-                    stride,
-                    norm_cfg,
-                    act_cfg,
-                    num_convs=self.num_convs,
-                    fusion_type=bottleneck_type))
+        layers = [
+            STDCModule(
+                in_channels if i == 0 else out_channels,
+                out_channels,
+                stride,
+                norm_cfg,
+                act_cfg,
+                num_convs=self.num_convs,
+                fusion_type=bottleneck_type,
+            )
+            for i, stride in enumerate(strides)
+        ]
         return Sequential(*layers)
 
     def forward(self, x):

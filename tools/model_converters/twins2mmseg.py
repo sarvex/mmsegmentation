@@ -17,10 +17,7 @@ def convert_twins(args, ckpt):
         if k.startswith('head'):
             continue
         elif k.startswith('patch_embeds'):
-            if 'proj.' in k:
-                new_k = k.replace('proj.', 'projection.')
-            else:
-                new_k = k
+            new_k = k.replace('proj.', 'projection.') if 'proj.' in k else k
         elif k.startswith('blocks'):
             # Union
             if 'attn.q.' in k:
@@ -31,23 +28,13 @@ def convert_twins(args, ckpt):
                 new_k = k.replace('mlp.fc1', 'ffn.layers.0.0')
             elif 'mlp.fc2' in k:
                 new_k = k.replace('mlp.fc2', 'ffn.layers.1')
-            # Only pcpvt
             elif args.model == 'pcpvt':
-                if 'attn.proj.' in k:
-                    new_k = k.replace('proj.', 'attn.out_proj.')
-                else:
-                    new_k = k
-
-            # Only svt
+                new_k = k.replace('proj.', 'attn.out_proj.') if 'attn.proj.' in k else k
+            elif 'attn.proj.' in k:
+                k_lst = k.split('.')
+                new_k = k.replace('proj.', 'attn.out_proj.') if int(k_lst[2]) % 2 == 1 else k
             else:
-                if 'attn.proj.' in k:
-                    k_lst = k.split('.')
-                    if int(k_lst[2]) % 2 == 1:
-                        new_k = k.replace('proj.', 'attn.out_proj.')
-                    else:
-                        new_k = k
-                else:
-                    new_k = k
+                new_k = k
             new_k = new_k.replace('blocks.', 'layers.')
         elif k.startswith('pos_block'):
             new_k = k.replace('pos_block', 'position_encodings')

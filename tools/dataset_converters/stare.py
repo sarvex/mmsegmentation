@@ -28,8 +28,7 @@ def parse_args():
     parser.add_argument('labels_vk', help='the path of labels-vk.tar')
     parser.add_argument('--tmp_dir', help='path of the temporary directory')
     parser.add_argument('-o', '--out_dir', help='output path')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -37,11 +36,7 @@ def main():
     image_path = args.image_path
     labels_ah = args.labels_ah
     labels_vk = args.labels_vk
-    if args.out_dir is None:
-        out_dir = osp.join('data', 'STARE')
-    else:
-        out_dir = args.out_dir
-
+    out_dir = osp.join('data', 'STARE') if args.out_dir is None else args.out_dir
     print('Making directories...')
     mkdir_or_exist(out_dir)
     mkdir_or_exist(osp.join(out_dir, 'images'))
@@ -74,15 +69,25 @@ def main():
             img = mmcv.imread(osp.join(now_dir, filename))
             mmcv.imwrite(
                 img,
-                osp.join(out_dir, 'images', 'training',
-                         osp.splitext(filename)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'images',
+                    'training',
+                    f'{osp.splitext(filename)[0]}.png',
+                ),
+            )
 
         for filename in sorted(os.listdir(now_dir))[TRAINING_LEN:]:
             img = mmcv.imread(osp.join(now_dir, filename))
             mmcv.imwrite(
                 img,
-                osp.join(out_dir, 'images', 'validation',
-                         osp.splitext(filename)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'images',
+                    'validation',
+                    f'{osp.splitext(filename)[0]}.png',
+                ),
+            )
 
         print('Removing the temporary files...')
 
@@ -113,15 +118,25 @@ def main():
             # 128 equivalent to '1 if value >= 128 else 0'
             mmcv.imwrite(
                 img[:, :, 0] // 128,
-                osp.join(out_dir, 'annotations', 'training',
-                         osp.splitext(filename)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'annotations',
+                    'training',
+                    f'{osp.splitext(filename)[0]}.png',
+                ),
+            )
 
         for filename in sorted(os.listdir(now_dir))[TRAINING_LEN:]:
             img = mmcv.imread(osp.join(now_dir, filename))
             mmcv.imwrite(
                 img[:, :, 0] // 128,
-                osp.join(out_dir, 'annotations', 'validation',
-                         osp.splitext(filename)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'annotations',
+                    'validation',
+                    f'{osp.splitext(filename)[0]}.png',
+                ),
+            )
 
         print('Removing the temporary files...')
 
@@ -148,15 +163,25 @@ def main():
             img = mmcv.imread(osp.join(now_dir, filename))
             mmcv.imwrite(
                 img[:, :, 0] // 128,
-                osp.join(out_dir, 'annotations', 'training',
-                         osp.splitext(filename)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'annotations',
+                    'training',
+                    f'{osp.splitext(filename)[0]}.png',
+                ),
+            )
 
         for filename in sorted(os.listdir(now_dir))[TRAINING_LEN:]:
             img = mmcv.imread(osp.join(now_dir, filename))
             mmcv.imwrite(
                 img[:, :, 0] // 128,
-                osp.join(out_dir, 'annotations', 'validation',
-                         osp.splitext(filename)[0] + '.png'))
+                osp.join(
+                    out_dir,
+                    'annotations',
+                    'validation',
+                    f'{osp.splitext(filename)[0]}.png',
+                ),
+            )
 
         print('Removing the temporary files...')
 

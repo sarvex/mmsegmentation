@@ -21,8 +21,7 @@ def digit_version(version_str):
             digit_version.append(int(x))
         elif x.find('rc') != -1:
             patch_version = x.split('rc')
-            digit_version.append(int(patch_version[0]) - 1)
-            digit_version.append(int(patch_version[1]))
+            digit_version.extend((int(patch_version[0]) - 1, int(patch_version[1])))
     return digit_version
 
 
@@ -78,12 +77,11 @@ def _demo_mm_inputs(input_shape, num_classes):
         'scale_factor': 1.0,
         'flip': False,
     } for _ in range(N)]
-    mm_inputs = {
+    return {
         'imgs': torch.FloatTensor(imgs).requires_grad_(True),
         'img_metas': img_metas,
-        'gt_semantic_seg': torch.LongTensor(segs)
+        'gt_semantic_seg': torch.LongTensor(segs),
     }
-    return mm_inputs
 
 
 def pytorch2libtorch(model,
@@ -145,8 +143,7 @@ def parse_args():
         nargs='+',
         default=[512, 512],
         help='input image size (height, width)')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == '__main__':

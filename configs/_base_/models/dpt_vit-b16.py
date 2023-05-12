@@ -9,7 +9,7 @@ data_preprocessor = dict(
 model = dict(
     type='EncoderDecoder',
     data_preprocessor=data_preprocessor,
-    pretrained='pretrain/vit-b16_p16_224-80ecf9dd.pth', # noqa
+    pretrained='pretrain/vit-b16_p16_224-80ecf9dd.pth',
     backbone=dict(
         type='VisionTransformer',
         img_size=224,
@@ -19,7 +19,8 @@ model = dict(
         out_indices=(2, 5, 8, 11),
         final_norm=False,
         with_cls_token=True,
-        output_cls_token=True),
+        output_cls_token=True,
+    ),
     decode_head=dict(
         type='DPTHead',
         in_channels=(768, 768, 768, 768),
@@ -32,8 +33,10 @@ model = dict(
         in_index=(0, 1, 2, 3),
         norm_cfg=norm_cfg,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
     auxiliary_head=None,
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))  # yapf: disable
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

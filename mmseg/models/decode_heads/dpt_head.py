@@ -89,8 +89,6 @@ class ReassembleBlocks(BaseModule):
             elif self.readout_type == 'add':
                 x = x.flatten(2) + cls_token.unsqueeze(-1)
                 x = x.reshape(feature_shape)
-            else:
-                pass
             x = self.projects[i](x)
             x = self.resize_layers[i](x)
             out.append(x)

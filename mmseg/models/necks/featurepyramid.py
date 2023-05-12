@@ -51,7 +51,6 @@ class Feature2Pyramid(nn.Module):
 
     def forward(self, inputs):
         assert len(inputs) == len(self.rescales)
-        outputs = []
         if self.upsample_4x is not None:
             ops = [
                 self.upsample_4x, self.upsample_2x, self.identity,
@@ -62,6 +61,5 @@ class Feature2Pyramid(nn.Module):
                 self.upsample_2x, self.identity, self.downsample_2x,
                 self.downsample_4x
             ]
-        for i in range(len(inputs)):
-            outputs.append(ops[i](inputs[i]))
+        outputs = [ops[i](inputs[i]) for i in range(len(inputs))]
         return tuple(outputs)

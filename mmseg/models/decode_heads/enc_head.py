@@ -186,8 +186,8 @@ class EncHead(BaseDecodeHead):
                      batch_data_samples: SampleList, **kwargs) -> dict:
         """Compute segmentation and semantic encoding loss."""
         seg_logit, se_seg_logit = seg_logit
-        loss = dict()
-        loss.update(super().loss_by_feat(seg_logit, batch_data_samples))
+        loss = {}
+        loss |= super().loss_by_feat(seg_logit, batch_data_samples)
 
         seg_label = self._stack_batch_gt(batch_data_samples)
         se_loss = self.loss_se_decode(

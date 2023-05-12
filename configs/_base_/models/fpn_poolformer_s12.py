@@ -19,15 +19,16 @@ model = dict(
         type='mmcls.PoolFormer',
         arch='s12',
         init_cfg=dict(
-            type='Pretrained', checkpoint=checkpoint_file, prefix='backbone.'),
+            type='Pretrained', checkpoint=checkpoint_file, prefix='backbone.'
+        ),
         in_patch_size=7,
         in_stride=4,
         in_pad=2,
         down_patch_size=3,
         down_stride=2,
         down_pad=1,
-        drop_rate=0.,
-        drop_path_rate=0.,
+        drop_rate=0.0,
+        drop_path_rate=0.0,
         out_indices=(0, 2, 4, 6),
         frozen_stages=0,
     ),
@@ -35,7 +36,8 @@ model = dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
         out_channels=256,
-        num_outs=4),
+        num_outs=4,
+    ),
     decode_head=dict(
         type='FPNHead',
         in_channels=[256, 256, 256, 256],
@@ -47,7 +49,9 @@ model = dict(
         norm_cfg=norm_cfg,
         align_corners=False,
         loss_decode=dict(
-            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0)),
-    # model training and testing settings
-    train_cfg=dict(),
-    test_cfg=dict(mode='whole'))
+            type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0
+        ),
+    ),
+    train_cfg={},
+    test_cfg=dict(mode='whole'),
+)

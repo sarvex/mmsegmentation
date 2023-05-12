@@ -21,8 +21,7 @@ def parse_args():
         default='benchmark_train_info.json',
         help='output path of gathered metrics to be stored')
 
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 if __name__ == '__main__':
@@ -72,9 +71,9 @@ if __name__ == '__main__':
                 print(f'log file error: {log_json_path}')
                 continue
 
-            differential_results = dict()
-            old_results = dict()
-            new_results = dict()
+            differential_results = {}
+            old_results = {}
+            new_results = {}
             for metric_key in model_performance:
                 if metric_key in ['mIoU']:
                     metric = round(model_performance[metric_key] * 100, 2)

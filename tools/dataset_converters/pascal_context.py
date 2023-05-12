@@ -41,8 +41,7 @@ def parse_args():
     parser.add_argument('devkit_path', help='pascal voc devkit path')
     parser.add_argument('json_path', help='annoation json filepath')
     parser.add_argument('-o', '--out_dir', help='output path')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():

@@ -210,8 +210,7 @@ def parse_args():
     parser.add_argument('-o', '--out_dir', help='output path')
     parser.add_argument(
         '--nproc', default=16, type=int, help='number of process')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
@@ -233,9 +232,9 @@ def main():
     train_list = [file for file in train_list if '_labelTrainIds' not in file]
     test_list = glob(osp.join(coco_path, 'annotations', 'val2017', '*.png'))
     test_list = [file for file in test_list if '_labelTrainIds' not in file]
-    assert (len(train_list) +
-            len(test_list)) == COCO_LEN, 'Wrong length of list {} & {}'.format(
-                len(train_list), len(test_list))
+    assert (
+        len(train_list) + len(test_list)
+    ) == COCO_LEN, f'Wrong length of list {len(train_list)} & {len(test_list)}'
 
     if args.nproc > 1:
         track_parallel_progress(

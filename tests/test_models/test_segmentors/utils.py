@@ -44,9 +44,7 @@ def _demo_mm_inputs(input_shape=(1, 3, 8, 16), num_classes=10):
         for i in range(N)
     ]
 
-    mm_inputs = {'imgs': torch.FloatTensor(imgs), 'data_samples': data_samples}
-
-    return mm_inputs
+    return {'imgs': torch.FloatTensor(imgs), 'data_samples': data_samples}
 
 
 @MODELS.register_module()

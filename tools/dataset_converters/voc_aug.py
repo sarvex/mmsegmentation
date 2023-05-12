@@ -30,15 +30,14 @@ def parse_args():
     parser.add_argument('-o', '--out_dir', help='output path')
     parser.add_argument(
         '--nproc', default=1, type=int, help='number of process')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    devkit_path = args.devkit_path
     aug_path = args.aug_path
     nproc = args.nproc
+    devkit_path = args.devkit_path
     if args.out_dir is None:
         out_dir = osp.join(devkit_path, 'VOC2012', 'SegmentationClassAug')
     else:
@@ -68,8 +67,7 @@ def main():
 
     aug_train_list = generate_aug_list(ori_train_list + full_aug_list,
                                        val_list)
-    assert len(aug_train_list) == AUG_LEN, 'len(aug_train_list) != {}'.format(
-        AUG_LEN)
+    assert len(aug_train_list) == AUG_LEN, f'len(aug_train_list) != {AUG_LEN}'
 
     with open(
             osp.join(devkit_path, 'VOC2012/ImageSets/Segmentation',
@@ -78,8 +76,8 @@ def main():
 
     aug_list = generate_aug_list(full_aug_list, ori_train_list + val_list)
     assert len(aug_list) == AUG_LEN - len(
-        ori_train_list), 'len(aug_list) != {}'.format(AUG_LEN -
-                                                      len(ori_train_list))
+        ori_train_list
+    ), f'len(aug_list) != {AUG_LEN - len(ori_train_list)}'
     with open(
             osp.join(devkit_path, 'VOC2012/ImageSets/Segmentation', 'aug.txt'),
             'w') as f:

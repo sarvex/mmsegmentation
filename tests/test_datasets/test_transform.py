@@ -24,17 +24,16 @@ def test_resize():
     transform = dict(type='Resize', scale=(1333, 800), keep_ratio=True)
     resize_module = TRANSFORMS.build(transform)
 
-    results = dict()
     # (288, 512, 3)
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
-    results['img'] = img
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     resized_results = resize_module(results.copy())
     # img_shape = results['img'].shape[:2] in ``MMCV resize`` function
     # so right now it is (750, 1333) rather than (750, 1333, 3)
@@ -161,22 +160,21 @@ def test_flip():
     transform = dict(type='RandomFlip', prob=1.0)
     flip_module = TRANSFORMS.build(transform)
 
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     original_img = copy.deepcopy(img)
     seg = np.array(
         Image.open(osp.join(osp.dirname(__file__), '../data/seg.png')))
     original_seg = copy.deepcopy(seg)
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = flip_module(results)
 
     flip_module = TRANSFORMS.build(transform)
@@ -206,7 +204,6 @@ def test_random_rotate_flip():
         type='RandomRotFlip', flip_prob=1.0, rotate_prob=0, degree=20)
     rot_flip_module = TRANSFORMS.build(transform)
 
-    results = dict()
     img = mmcv.imread(
         osp.join(
             osp.dirname(__file__),
@@ -220,15 +217,15 @@ def test_random_rotate_flip():
                 '../data/pseudo_synapse_dataset/ann_dir/case0005_slice000.png')
         ))
     original_seg = copy.deepcopy(seg)
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     result_flip = rot_flip_module(results)
     assert original_img.shape == result_flip['img'].shape
     assert original_seg.shape == result_flip['gt_semantic_seg'].shape
@@ -255,17 +252,16 @@ def test_pad():
 
     transform = dict(type='Pad', size_divisor=32)
     transform = TRANSFORMS.build(transform)
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     original_img = copy.deepcopy(img)
-    results['img'] = img
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = transform(results)
     # original img already divisible by 32
     assert np.equal(results['img'], original_img).all()
@@ -281,17 +277,16 @@ def test_normalize():
         to_rgb=True)
     transform = dict(type='Normalize', **img_norm_cfg)
     transform = TRANSFORMS.build(transform)
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     original_img = copy.deepcopy(img)
-    results['img'] = img
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = transform(results)
 
     mean = np.array(img_norm_cfg['mean'])
@@ -305,18 +300,17 @@ def test_random_crop():
     with pytest.raises(AssertionError):
         RandomCrop(crop_size=(-1, 0))
 
-    results = dict()
     img = mmcv.imread(osp.join('tests/data/color.jpg'), 'color')
     seg = np.array(Image.open(osp.join('tests/data/seg.png')))
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     h, w, _ = img.shape
     pipeline = RandomCrop(crop_size=(h - 20, w - 20))
 
@@ -340,25 +334,25 @@ def test_rgb2gray():
     transform = dict(type='RGB2Gray')
     transform = TRANSFORMS.build(transform)
 
-    assert str(transform) == f'RGB2Gray(' \
-                             f'out_channels={None}, ' \
-                             f'weights={(0.299, 0.587, 0.114)})'
+    assert (
+        str(transform)
+        == f'RGB2Gray(out_channels=None, weights={(0.299, 0.587, 0.114)})'
+    )
 
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     h, w, c = img.shape
     seg = np.array(
         Image.open(osp.join(osp.dirname(__file__), '../data/seg.png')))
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = transform(results)
     assert results['img'].shape == (h, w, c)
     assert results['img_shape'] == (h, w, c)
@@ -368,11 +362,12 @@ def test_rgb2gray():
     transform = dict(type='RGB2Gray', out_channels=2)
     transform = TRANSFORMS.build(transform)
 
-    assert str(transform) == f'RGB2Gray(' \
-                             f'out_channels={2}, ' \
-                             f'weights={(0.299, 0.587, 0.114)})'
+    assert (
+        str(transform)
+        == f'RGB2Gray(out_channels=2, weights={(0.299, 0.587, 0.114)})'
+    )
 
-    results = dict()
+    results = {}
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     h, w, c = img.shape
@@ -394,18 +389,17 @@ def test_rgb2gray():
 
 def test_photo_metric_distortion():
 
-    results = dict()
     img = mmcv.imread(osp.join('tests/data/color.jpg'), 'color')
     seg = np.array(Image.open(osp.join('tests/data/seg.png')))
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     pipeline = PhotoMetricDistortion(saturation_range=(1., 1.))
     results = pipeline(results)
 
@@ -428,14 +422,13 @@ def test_rerange():
     with pytest.raises(AssertionError):
         transform = dict(type='Rerange', min_value=0, max_value=1)
         transform = TRANSFORMS.build(transform)
-        results = dict()
-        results['img'] = np.array([[1, 1], [1, 1]])
+        results = {'img': np.array([[1, 1], [1, 1]])}
         transform(results)
 
-    img_rerange_cfg = dict()
+    img_rerange_cfg = {}
     transform = dict(type='Rerange', **img_rerange_cfg)
     transform = TRANSFORMS.build(transform)
-    results = dict()
+    results = {}
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     original_img = copy.deepcopy(img)
@@ -453,7 +446,7 @@ def test_rerange():
     converted_img = (original_img - min_value) / (max_value - min_value) * 255
 
     assert np.allclose(results['img'], converted_img)
-    assert str(transform) == f'Rerange(min_value={0}, max_value={255})'
+    assert str(transform) == 'Rerange(min_value=0, max_value=255)'
 
 
 def test_CLAHE():
@@ -474,17 +467,16 @@ def test_CLAHE():
 
     transform = dict(type='CLAHE', clip_limit=2)
     transform = TRANSFORMS.build(transform)
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     original_img = copy.deepcopy(img)
-    results['img'] = img
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = transform(results)
 
     converted_img = np.empty(original_img.shape)
@@ -493,7 +485,7 @@ def test_CLAHE():
             np.array(original_img[:, :, i], dtype=np.uint8), 2, (8, 8))
 
     assert np.allclose(results['img'], converted_img)
-    assert str(transform) == f'CLAHE(clip_limit={2}, tile_grid_size={(8, 8)})'
+    assert str(transform) == f'CLAHE(clip_limit=2, tile_grid_size={(8, 8)})'
 
 
 def test_adjust_gamma():
@@ -510,17 +502,16 @@ def test_adjust_gamma():
     # test with gamma = 1.2
     transform = dict(type='AdjustGamma', gamma=1.2)
     transform = TRANSFORMS.build(transform)
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     original_img = copy.deepcopy(img)
-    results['img'] = img
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = transform(results)
 
     inv_gamma = 1.0 / 1.2
@@ -529,7 +520,7 @@ def test_adjust_gamma():
     converted_img = mmcv.lut_transform(
         np.array(original_img, dtype=np.uint8), table)
     assert np.allclose(results['img'], converted_img)
-    assert str(transform) == f'AdjustGamma(gamma={1.2})'
+    assert str(transform) == 'AdjustGamma(gamma=1.2)'
 
 
 def test_rotate():
@@ -545,39 +536,33 @@ def test_rotate():
     transform = dict(type='RandomRotate', degree=10., prob=1.)
     transform = TRANSFORMS.build(transform)
 
-    assert str(transform) == f'RandomRotate(' \
-                             f'prob={1.}, ' \
-                             f'degree=({-10.}, {10.}), ' \
-                             f'pad_val={0}, ' \
-                             f'seg_pad_val={255}, ' \
-                             f'center={None}, ' \
-                             f'auto_bound={False})'
+    assert (
+        str(transform)
+        == 'RandomRotate(prob=1.0, degree=(-10.0, 10.0), pad_val=0, seg_pad_val=255, center=None, auto_bound=False)'
+    )
 
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     h, w, _ = img.shape
     seg = np.array(
         Image.open(osp.join(osp.dirname(__file__), '../data/seg.png')))
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    # Set initial values for default meta_keys
-    results['pad_shape'] = img.shape
-    results['scale_factor'] = 1.0
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'scale_factor': 1.0,
+    }
     results = transform(results)
     assert results['img'].shape[:2] == (h, w)
 
 
 def test_seg_rescale():
-    results = dict()
     seg = np.array(
         Image.open(osp.join(osp.dirname(__file__), '../data/seg.png')))
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
+    results = {'gt_semantic_seg': seg, 'seg_fields': ['gt_semantic_seg']}
     h, w = seg.shape
 
     transform = dict(type='SegRescale', scale_factor=1. / 2)
@@ -601,16 +586,16 @@ def test_mosaic():
         transform = dict(type='RandomMosaic', prob=1, img_scale=640)
         TRANSFORMS.build(transform)
 
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
     seg = np.array(
         Image.open(osp.join(osp.dirname(__file__), '../data/seg.png')))
 
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+    }
     transform = dict(type='RandomMosaic', prob=1, img_scale=(10, 12))
     mosaic_module = TRANSFORMS.build(transform)
     assert 'Mosaic' in repr(mosaic_module)
@@ -623,7 +608,7 @@ def test_mosaic():
     results = mosaic_module(results)
     assert results['img'].shape[:2] == (20, 24)
 
-    results = dict()
+    results = {}
     results['img'] = img[:, :, 0]
     results['gt_semantic_seg'] = seg
     results['seg_fields'] = ['gt_semantic_seg']
@@ -639,7 +624,7 @@ def test_mosaic():
     results = mosaic_module(results)
     assert results['img'].shape[:2] == (20, 24)
 
-    results = dict()
+    results = {}
     results['img'] = np.concatenate((img, img), axis=2)
     results['gt_semantic_seg'] = seg
     results['seg_fields'] = ['gt_semantic_seg']
@@ -707,21 +692,21 @@ def test_cutout():
             seg_fill_in=256)
         TRANSFORMS.build(transform)
 
-    results = dict()
     img = mmcv.imread(
         osp.join(osp.dirname(__file__), '../data/color.jpg'), 'color')
 
     seg = np.array(
         Image.open(osp.join(osp.dirname(__file__), '../data/seg.png')))
 
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['ori_shape'] = img.shape
-    results['pad_shape'] = img.shape
-    results['img_fields'] = ['img']
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'ori_shape': img.shape,
+        'pad_shape': img.shape,
+        'img_fields': ['img'],
+    }
     transform = dict(
         type='RandomCutOut', prob=1, n_holes=1, cutout_shape=(10, 10))
     cutout_module = TRANSFORMS.build(transform)
@@ -774,13 +759,13 @@ def test_resize_to_multiple():
 
     img = np.random.randn(213, 232, 3)
     seg = np.random.randint(0, 19, (213, 232))
-    results = dict()
-    results['img'] = img
-    results['gt_semantic_seg'] = seg
-    results['seg_fields'] = ['gt_semantic_seg']
-    results['img_shape'] = img.shape
-    results['pad_shape'] = img.shape
-
+    results = {
+        'img': img,
+        'gt_semantic_seg': seg,
+        'seg_fields': ['gt_semantic_seg'],
+        'img_shape': img.shape,
+        'pad_shape': img.shape,
+    }
     results = transform(results)
     assert results['img'].shape == (224, 256, 3)
     assert results['gt_semantic_seg'].shape == (224, 256)
@@ -799,10 +784,7 @@ def test_generate_edge():
         [1, 2, 2, 2, 2],
         [2, 2, 2, 2, 2],
     ])
-    results = dict()
-    results['gt_seg_map'] = seg_map
-    results['img_shape'] = seg_map.shape
-
+    results = {'gt_seg_map': seg_map, 'img_shape': seg_map.shape}
     results = transform(results)
     assert np.all(results['gt_edge_map'] == np.array([
         [0, 0, 0, 1, 0],
@@ -822,9 +804,11 @@ def test_biomedical3d_random_crop():
 
     from mmseg.datasets.transforms import (LoadBiomedicalAnnotation,
                                            LoadBiomedicalImageFromFile)
-    results = dict()
-    results['img_path'] = osp.join(
-        osp.dirname(__file__), '../data', 'biomedical.nii.gz')
+    results = {
+        'img_path': osp.join(
+            osp.dirname(__file__), '../data', 'biomedical.nii.gz'
+        )
+    }
     transform = LoadBiomedicalImageFromFile()
     results = transform(copy.deepcopy(results))
 
@@ -1086,10 +1070,11 @@ def test_biomedical_3d_flip():
     transform = TRANSFORMS.build(transform)
 
     # test with random 3d data
-    results = dict()
-    results['img_path'] = 'Null'
-    results['img_shape'] = (1, 16, 16, 16)
-    results['img'] = np.random.randn(1, 16, 16, 16)
+    results = {
+        'img_path': 'Null',
+        'img_shape': (1, 16, 16, 16),
+        'img': np.random.randn(1, 16, 16, 16),
+    }
     results['gt_seg_map'] = np.random.randint(0, 4, (16, 16, 16))
 
     original_img = results['img'].copy()

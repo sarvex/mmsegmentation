@@ -40,8 +40,7 @@ def parse_args():
         'It also allows nested list/tuple values, e.g. key="[(a,b),(c,d)]" '
         'Note that the quotation marks are necessary and that no white space '
         'is allowed.')
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def inference(args: argparse.Namespace, logger: MMLogger) -> dict:
@@ -64,16 +63,13 @@ def inference(args: argparse.Namespace, logger: MMLogger) -> dict:
         input_shape = (3, ) + tuple(args.shape)
     else:
         raise ValueError('invalid input shape')
-    result = {}
-
     model: BaseSegmentor = MODELS.build(cfg.model)
     if hasattr(model, 'auxiliary_head'):
         model.auxiliary_head = None
     if torch.cuda.is_available():
         model.cuda()
     model = revert_sync_batchnorm(model)
-    result['ori_shape'] = input_shape[-2:]
-    result['pad_shape'] = input_shape[-2:]
+    result = {'ori_shape': input_shape[-2:], 'pad_shape': input_shape[-2:]}
     data_batch = {
         'inputs': [torch.rand(input_shape)],
         'data_samples': [SegDataSample(metainfo=result)]

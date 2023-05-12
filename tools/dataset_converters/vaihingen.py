@@ -28,8 +28,7 @@ def parse_args():
         type=int,
         help='stride of clipping original images',
         default=256)
-    args = parser.parse_args()
-    return args
+    return parser.parse_args()
 
 
 def clip_big_image(image_path, clip_save_dir, to_label=False):
